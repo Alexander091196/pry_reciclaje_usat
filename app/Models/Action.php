@@ -9,4 +9,11 @@ class Action extends Model
 {
     use HasFactory;
     protected $guarded=[];
+
+    protected $fillable = [
+        'date',
+        'description',
+        'image',
+        'horarie_id',
+    ];
 }

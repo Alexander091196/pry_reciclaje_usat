@@ -1,4 +1,4 @@
-{!! Form::open(['route'=>'admin.actions.store']) !!}
+{!! Form::open(['route' => 'admin.actions.store', 'files' => true]) !!}
 @include('admin.actions.template.form')
 
 <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Agregar</button>
