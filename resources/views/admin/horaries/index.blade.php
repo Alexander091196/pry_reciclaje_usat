@@ -6,10 +6,11 @@
     <div class="p-3"></div>
     <div class="card">
         <div class="card-header">
-            <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus-circle"></i> Agregar horario</button>
+            <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus-circle"></i> Agregar
+                horario</button>
 
             <div>
-                <strong>Mantenimiento:</strong> {{ $act->name }} 
+                <strong>Mantenimiento:</strong> {{ $act->name }}
             </div>
 
         </div>
@@ -28,13 +29,12 @@
                             </ul>
                         </div>
                     @endif
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="datatable">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>DIA</th>
                                 <th>VEHICULO</th>
-                                <th>CONDUCTOR</th>
                                 <th>TIPO</th>
                                 <th>HORA INICIO</th>
                                 <th>HORA FIN</th>
@@ -50,20 +50,20 @@
                                     <td>{{ $hor->id }}</td>
                                     <td>{{ $hor->day }}</td>
                                     <td>{{ $hor->vehicle }}</td>
-                                    <td>{{ $hor->conductor }}</td>
                                     <td>{{ $hor->type }}</td>
                                     <td>{{ $hor->hori }}</td>
                                     <td>{{ $hor->horf }}</td>
                                     <td>
-                                        <a href="{{ route('admin.horaries.show', $hor->id) }}" class="btn btn-secondary btn-sm"><i
-                                                class="fas fa-wrench"></i></a>
+                                        <a href="{{ route('admin.horaries.show', $hor->id) }}"
+                                            class="btn btn-secondary btn-sm"><i class="fas fa-wrench"></i></a>
                                     </td>
                                     <td>
                                         <button class="btnEditar btn btn-primary" id="{{ $hor->id }}">
                                             <i class="fa fa-edit"></i></button>
                                     </td>
                                     <td>
-                                        <form action="{{route('admin.horaries.destroy', $hor->id)}}" method="POST" class="fmrEliminar">
+                                        <form action="{{ route('admin.horaries.destroy', $hor->id) }}" method="POST"
+                                            class="fmrEliminar">
                                             @method('delete')
                                             @csrf
                                             <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></a>
@@ -102,7 +102,7 @@
                 </div>
                 <div class="modal-footer">
                     <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary">Save changes</button>-->
+                      <button type="button" class="btn btn-primary">Save changes</button>-->
                 </div>
             </div>
         </div>
@@ -123,16 +123,15 @@
         });
 
         $('#btnNuevo').click(function() {
-        $.ajax({
-            url: "{{ route('admin.horaries.create') }}",
-            type: "GET",
-            success: function(response) {
-                $('#formModal .modal-body').html(response);
-                refreshTable();
-                $('#formModal').modal('show');
-            }
-        })
-    });
+            $.ajax({
+                url: "{{ route('admin.horaries.create') }}",
+                type: "GET",
+                success: function(response) {
+                    $('#formModal .modal-body').html(response);
+                    $('#formModal').modal('show');
+                }
+            })
+        });
 
         $(".btnEditar").click(function() {
             var id = $(this).attr('id');
@@ -164,11 +163,6 @@
                 }
             });
         });
-
-        function refreshTable() {
-            var table = $('#datatable').DataTable();
-            table.ajax.reload(null, false); // Recargar datos sin perder la paginación
-        }
     </script>
 
     @if (session('success') !== null)
