@@ -10,7 +10,7 @@
                 horario</button>
 
             <div>
-                <strong>Mantenimiento:</strong> {{ $act->name }}
+                <strong>Mantenimiento: </strong> {{ $act->name }}
             </div>
 
         </div>
@@ -20,15 +20,6 @@
             </div>
             <div class="col-12 card" style="min-height: 50px">
                 <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                     <table class="table table-striped" id="datatable">
                         <thead>
                             <tr>
@@ -38,41 +29,12 @@
                                 <th>TIPO</th>
                                 <th>HORA INICIO</th>
                                 <th>HORA FIN</th>
-                                <th width=20></th>
-                                <th width=20></th>
-                                <th width=20></th>
+                                <th width=20>ACT</th>
+                                <th width=20>EDIT</th>
+                                <th width=20>DEL</th>
 
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($horaries as $hor)
-                                <tr>
-                                    <td>{{ $hor->id }}</td>
-                                    <td>{{ $hor->day }}</td>
-                                    <td>{{ $hor->vehicle }}</td>
-                                    <td>{{ $hor->type }}</td>
-                                    <td>{{ $hor->hori }}</td>
-                                    <td>{{ $hor->horf }}</td>
-                                    <td>
-                                        <a href="{{ route('admin.horaries.show', $hor->id) }}"
-                                            class="btn btn-secondary btn-sm"><i class="fas fa-wrench"></i></a>
-                                    </td>
-                                    <td>
-                                        <button class="btnEditar btn btn-primary" id="{{ $hor->id }}">
-                                            <i class="fa fa-edit"></i></button>
-                                    </td>
-                                    <td>
-                                        <form action="{{ route('admin.horaries.destroy', $hor->id) }}" method="POST"
-                                            class="fmrEliminar">
-                                            @method('delete')
-                                            @csrf
-                                            <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></a>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-
-                        </tbody>
                     </table>
                 </div>
 
@@ -102,7 +64,7 @@
                 </div>
                 <div class="modal-footer">
                     <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Save changes</button>-->
+                          <button type="button" class="btn btn-primary">Save changes</button>-->
                 </div>
             </div>
         </div>
@@ -116,10 +78,41 @@
 
 @section('js')
     <script>
-        $('#datatable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
-            }
+        $(document).ready(function() {
+            var table = $('#datatable').DataTable({
+                "ajax": "{{ route('admin.horaries.index') }}", // La ruta que llama al controlador vía AJAX
+                "columns": [{
+                        "data": "id",
+                    },
+                    {
+                        "data": "day",
+                    },
+                    {
+                        "data": "vehicle",
+                    },
+                    {
+                        "data": "type",
+                    },
+                    {
+                        "data": "hori",
+                    },
+                    {
+                        "data": "horf",
+                    },
+                    {
+                        "data": "calendar",
+                    },
+                    {
+                        "data": "edit",
+                    },
+                    {
+                        "data": "delete",
+                    }
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                }
+            });
         });
 
         $('#btnNuevo').click(function() {
@@ -127,39 +120,106 @@
                 url: "{{ route('admin.horaries.create') }}",
                 type: "GET",
                 success: function(response) {
-                    $('#formModal .modal-body').html(response);
-                    $('#formModal').modal('show');
-                              }
-            })
-        });
+                    $("#formModal #exampleModalLabel").html("Nuevo horario");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
 
-        $(".btnEditar").click(function() {
-            var id = $(this).attr('id');
-            $.ajax({
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
 
-                url: "{{ route('admin.horaries.edit', '_id') }}".replace('_id', id),
-                type: "GET",
-                success: function(response) {
-                    $('#formModal .modal-body').html(response);
-                    $('#formModal').modal('show');
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+
                 }
             });
-
         });
 
-        $(".fmrEliminar").submit(function(e) {
+        $(document).on('click', '.btnEditar', function() {
+            var id = $(this).attr("id");
+
+            $.ajax({
+                url: "{{ route('admin.horaries.edit', 'id') }}".replace('id', id),
+                type: "GET",
+                success: function(response) {
+                    $("#formModal #exampleModalLabel").html("Modificar horario");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
+
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+                }
+            });
+        })
+
+        $(document).on('submit', '.frmEliminar', function(e) {
             e.preventDefault();
+            var form = $(this);
             Swal.fire({
-                title: "Seguro de eliminar?",
-                text: "Esta accion es irreversible!",
+                title: "Está seguro de eliminar?",
+                text: "Está acción no se puede revertir!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Si, Eliminar!"
+                confirmButtonText: "Si, eliminar!"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.submit();
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            refreshTable();
+                            Swal.fire('Proceso existoso', response.message, 'success');
+                        },
+                        error: function(xhr) {
+                            var response = xhr.responseJSON;
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    });
                 }
             });
         });

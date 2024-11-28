@@ -10,28 +10,67 @@ use App\Models\Typemantenimiento;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class HorariesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $id = session('activitie_id');
         $act = Activitie::find($id);
-
-        $horaries = DB::select('select h.id, h.day,v.name as vehicle,  t.name as type, h.starttime as hori, h.lasttime as horf
-                from horaries h
-                inner join vehicles v on h.vehicle_id = v.id 
-                inner join activities a on a.id = h.activitie_id 
-                inner join typemantenimientos t on t.id = h.typemantenimiento_id 
-            WHERE  h.activitie_id = ?', [$id]);
-
-
-        return view('admin.horaries.index', compact('act', 'horaries'));
+    
+        $horaries = DB::select('
+            select 
+                h.id, 
+                h.day, 
+                v.name as vehicle,  
+                t.name as type, 
+                h.starttime as hori, 
+                h.lasttime as horf
+            from horaries h
+            inner join vehicles v on h.vehicle_id = v.id 
+            inner join activities a on a.id = h.activitie_id 
+            inner join typemantenimientos t on t.id = h.typemantenimiento_id 
+            WHERE h.activitie_id = ?', [$id]);
+    
+        // Verificar si la solicitud es AJAX para DataTables
+        if ($request->ajax()) {
+            // Convertir el resultado de la consulta en una colección para facilitar el manejo
+            $horariesCollection = collect($horaries);
+    
+            return DataTables::of($horariesCollection)
+                ->addColumn('calendar', function ($horary) {
+                    return '
+                        <a href="' . route('admin.horaries.show', $horary->id) . '" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-wrench"></i>
+                        </a>';
+                })
+                ->addColumn('edit', function ($horary) {
+                    return '
+                        <button class="btnEditar btn btn-primary btn-sm" id="' . $horary->id . '">
+                            <i class="fa fa-edit"></i>
+                        </button>';
+                })
+                ->addColumn('delete', function ($horary) {
+                    return '
+                        <form action="' . route('admin.horaries.destroy', $horary->id) . '" method="POST" class="frmEliminar d-inline">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>';
+                })
+                ->rawColumns(['calendar', 'edit', 'delete']) // Declarar columnas que contienen HTML
+                ->make(true);
+        } else {
+            // Si no es AJAX, devolver la vista normalmente
+            return view('admin.horaries.index', compact('act', 'horaries'));
+        }
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
