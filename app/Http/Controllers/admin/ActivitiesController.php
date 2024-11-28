@@ -8,16 +8,51 @@ use App\Models\Horarie;
 use App\Models\Programming;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class ActivitiesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $activities = Activitie::all();
-        return view('admin.activities.index', compact('activities'));
+        $activities = Activitie::select(
+            'activities.id',
+            'activities.name',
+            'activities.startdate',
+            'activities.lastdate'
+        )->get();
+
+        if ($request->ajax()) {
+
+            return DataTables::of($activities)
+                ->addColumn('calendar', function ($activitie) {
+                    return '
+                        <a href="' . route('admin.activities.show', $activitie->id) . '" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-calendar-alt"></i>
+                        </a>';
+                })
+                ->addColumn('edit', function ($activitie) {
+                    return '
+                        <button class="btnEditar btn btn-primary btn-sm" id="' . $activitie->id . '">
+                            <i class="fa fa-edit"></i>
+                        </button>';
+                })
+                ->addColumn('delete', function ($activitie) {
+                    return '
+                        <form action="' . route('admin.activities.destroy', $activitie->id) . '" method="POST" class="frmEliminar d-inline">
+                            ' . csrf_field() . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>';
+                })
+                ->rawColumns(['actions', 'calendar', 'edit', 'delete']) // Declarar columnas que contienen HTML
+                ->make(true);
+        } else {
+            return view('admin.activities.index', compact('activities'));
+        }
     }
 
     /**
@@ -61,7 +96,6 @@ class ActivitiesController extends Controller
         WHERE vo.usertype_id=3 AND HR.activitie_id= ?', [$id]);
 
         return view('admin.horaries.index', compact('act', 'horaries'));
-    
     }
 
     /**
@@ -83,7 +117,7 @@ class ActivitiesController extends Controller
             'startdate' => 'required|date',
             'lastdate' => 'required|date|after_or_equal:startdate'
         ]);
-        
+
         $act = Activitie::find($id);
         $act->update($request->all());
         return redirect()->route('admin.activities.index')->with('success', 'Actividad actualizada');;
@@ -105,6 +139,4 @@ class ActivitiesController extends Controller
             return redirect()->route('admin.activities.index')->with('Success', 'Mantenimiento eliminado');
         }
     }
-
-    
 }

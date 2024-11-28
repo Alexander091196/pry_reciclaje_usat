@@ -129,7 +129,7 @@
                 success: function(response) {
                     $('#formModal .modal-body').html(response);
                     $('#formModal').modal('show');
-                }
+                              }
             })
         });
 
@@ -163,6 +163,11 @@
                 }
             });
         });
+
+        function refreshTable() {
+            var table = $('#datatable').DataTable();
+            table.ajax.reload(null, false); // Recargar datos sin perder la paginación
+        }
     </script>
 
     @if (session('success') !== null)

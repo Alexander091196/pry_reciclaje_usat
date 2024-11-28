@@ -18,40 +18,12 @@
                         <th>NOMBRE</th>
                         <th>FECHA INICIO</th>
                         <th>FECHA FINAL</th>
-                        <th width=20></th>
-                        <th width=20></th>
-                        <th width=20></th>
+                        <th width=5>HOR</th>
+                        <th width=5>EDIT</th>
+                        <th width=5>DEL</th>
                     </tr>
 
                 </thead>
-                <tbody>
-                    @foreach ($activities as $act)
-                        <tr>
-                            <td>{{ $act->id }}</td>
-                            <td>{{ $act->name }}</td>
-                            <td>{{ $act->startdate }}</td>
-                            <td>{{ $act->lastdate }}</td>
-                            <td>
-                                <a href="{{ route('admin.activities.show', $act->id) }}" class="btn btn-secondary btn-sm"><i
-                                        class="fas fa-calendar-alt"></i></a>
-                            </td>
-                            <td><!--<a href="{{ route('admin.activities.edit', $act->id) }}" class="btn btn-primary"><i class="fa fa-edit"></i></a>-->
-                                <button class="btnEditar btn btn-primary" id={{ $act->id }}><i
-                                        class="fa fa-edit"></i></button>
-                            </td>
-                            <td>
-                                <form action="{{ route('admin.activities.destroy', $act->id) }}" method="POST"
-                                    class="fmrEliminar">
-                                    @method('delete')
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></a>
-                            </td>
-                            </form>
-
-                        </tr>
-                    @endforeach
-
-                </tbody>
             </table>
         </div>
         <div class="card-footer">
@@ -75,7 +47,7 @@
                 </div>
                 <div class="modal-footer">
                     <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary">Save changes</button>-->
+                          <button type="button" class="btn btn-primary">Save changes</button>-->
                 </div>
             </div>
         </div>
@@ -84,40 +56,124 @@
 
 @section('js')
     <script>
-        $('#datatable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
-            }
+        $(document).ready(function() {
+            var table = $('#datatable').DataTable({
+                "ajax": "{{ route('admin.activities.index') }}", // La ruta que llama al controlador vía AJAX
+                "columns": [{
+                        "data": "id",
+                    },
+                    {
+                        "data": "name",
+                    },
+                    {
+                        "data": "startdate",
+                    },
+                    {
+                        "data": "lastdate",
+                    },
+                    {
+                        "data": "calendar",
+                    },
+                    {
+                        "data": "edit",
+                    },
+                    {
+                        "data": "delete",
+                    }
+
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                }
+            });
         });
+
 
         $('#btnNuevo').click(function() {
             $.ajax({
                 url: "{{ route('admin.activities.create') }}",
                 type: "GET",
                 success: function(response) {
-                    $('#formModal .modal-body').html(response);
-                    $('#formModal').modal('show');
-                }
-            })
+                    $("#formModal #exampleModalLabel").html("Nuevo mantenimiento");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
 
-        })
-        $(".btnEditar").click(function() {
-            var id = $(this).attr('id');
-            $.ajax({
-                url: "{{ route('admin.activities.edit', '_id') }}".replace('_id', id),
-                type: "GET",
-                success: function(response) {
-                    $('#formModal .modal-body').html(response);
-                    $('#formModal').modal('show');
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+
                 }
             });
         });
 
-        $(".fmrEliminar").submit(function(e) {
+        $(document).on('click', '.btnEditar', function() {
+            var id = $(this).attr("id");
+
+            $.ajax({
+                url: "{{ route('admin.activities.edit', 'id') }}".replace('id', id),
+                type: "GET",
+                success: function(response) {
+                    $("#formModal #exampleModalLabel").html("Modificar mantenimiento");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
+
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+                }
+            });
+        })
+
+        $(document).on('submit', '.frmEliminar', function(e) {
             e.preventDefault();
+            var form = $(this);
             Swal.fire({
-                title: "Seguro de eliminar?",
-                text: "Esta accion es irreversible!",
+                title: "Está seguro de eliminar?",
+                text: "Está acción no se puede revertir!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -125,10 +181,27 @@
                 confirmButtonText: "Si, eliminar!"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.submit();
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            refreshTable();
+                            Swal.fire('Proceso existoso', response.message, 'success');
+                        },
+                        error: function(xhr) {
+                            var response = xhr.responseJSON;
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    });
                 }
             });
         });
+
+        function refreshTable() {
+            var table = $('#datatable').DataTable();
+            table.ajax.reload(null, false); // Recargar datos sin perder la paginación
+        }
     </script>
 
     @if (session('success') !== null)

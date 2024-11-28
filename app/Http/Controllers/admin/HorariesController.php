@@ -22,10 +22,10 @@ class HorariesController extends Controller
         $act = Activitie::find($id);
 
         $horaries = DB::select('select h.id, h.day,v.name as vehicle,  t.name as type, h.starttime as hori, h.lasttime as horf
-from horaries h
-inner join vehicles v on h.vehicle_id = v.id 
-inner join activities a on a.id = h.activitie_id 
-inner join typemantenimientos t on t.id = h.typemantenimiento_id 
+                from horaries h
+                inner join vehicles v on h.vehicle_id = v.id 
+                inner join activities a on a.id = h.activitie_id 
+                inner join typemantenimientos t on t.id = h.typemantenimiento_id 
             WHERE  h.activitie_id = ?', [$id]);
 
 
