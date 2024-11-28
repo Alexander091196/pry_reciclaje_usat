@@ -6,63 +6,41 @@
     <div class="p-3"></div>
     <div class="card">
         <div class="card-header">
-            <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus-circle"></i> Agregar actividad</button>
+            <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus-circle"></i> Agregar
+                actividad</button>
 
             <div>
-                <strong>Dia del horario:</strong> {{ $hor->day }} 
+                <strong>Dia del horario:</strong> {{ $hor->day }}
             </div>
-            {{-- <div>
-                <strong>Fecha de mantenimiento:</strong> Inicio: {{ $act->startdate }} | Fin: {{ $act->lastdate }} 
-            </div> --}}
 
         </div>
         <div class="card-body">
             <div class="row">
-
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
             <div class="col-12 card" style="min-height: 50px">
                 <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="datatable">
                         <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>IMAGEN</th>
                                 <th>FECHA</th>
                                 <th>DESCRIPCION</th>
-                                <th width=20></th>
-                                <th width=20></th>
+                                <th width=20>EDIT</th>
+                                <th width=20>DEL</th>
 
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($actions as $acti)
-                                <tr>
-                                    <td>{{ $acti->id }}</td>
-                                    <td>{{ $acti->date }}</td>
-                                    <td>{{ $acti->description }}</td>
-                                    <td>
-                                        <button class="btnEditar btn btn-primary" id="{{ $acti->id }}">
-                                            <i class="fa fa-edit"></i></button>
-                                    </td>
-                                    <td>
-                                        <form action="{{route('admin.actions.destroy', $acti->id)}}" method="POST" class="fmrEliminar">
-                                            @method('delete')
-                                            @csrf
-                                            <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i></a>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
 
-                        </tbody>
                     </table>
                 </div>
 
@@ -92,7 +70,7 @@
                 </div>
                 <div class="modal-footer">
                     <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary">Save changes</button>-->
+                                  <button type="button" class="btn btn-primary">Save changes</button>-->
                 </div>
             </div>
         </div>
@@ -106,53 +84,148 @@
 
 @section('js')
     <script>
-        $('#datatable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
-            }
+        $(document).ready(function() {
+            var table = $('#datatable').DataTable({
+                "ajax": "{{ route('admin.actions.index') }}", // La ruta que llama al controlador vía AJAX
+                "columns": [{
+                        "data": "id",
+                    },
+                    {
+                        "data": "image",
+                    },
+                    {
+                        "data": "date",
+                    },
+                    {
+                        "data": "description",
+                    },
+                    {
+                        "data": "edit",
+                    },
+                    {
+                        "data": "delete",
+                    }
+
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                }
+            });
         });
 
         $('#btnNuevo').click(function() {
-        $.ajax({
-            url: "{{ route('admin.actions.create') }}",
-            type: "GET",
-            success: function(response) {
-                $('#formModal .modal-body').html(response);
-                $('#formModal').modal('show');
-            }
-        })
-    });
-
-        $(".btnEditar").click(function() {
-            var id = $(this).attr('id');
             $.ajax({
-
-                url: "{{ route('admin.actions.edit', '_id') }}".replace('_id', id),
+                url: "{{ route('admin.actions.create') }}",
                 type: "GET",
                 success: function(response) {
-                    $('#formModal .modal-body').html(response);
-                    $('#formModal').modal('show');
+                    $("#formModal #exampleModalLabel").html("Nuevo acción");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
+
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+
                 }
             });
-
         });
 
-        $(".fmrEliminar").submit(function(e) {
+        $(document).on('click', '.btnEditar', function() {
+            var id = $(this).attr("id");
+
+            $.ajax({
+                url: "{{ route('admin.actions.edit', 'id') }}".replace('id', id),
+                type: "GET",
+                success: function(response) {
+                    $("#formModal #exampleModalLabel").html("Modificar acción");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
+
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+                }
+            });
+        })
+
+        $(document).on('submit', '.frmEliminar', function(e) {
             e.preventDefault();
+            var form = $(this);
             Swal.fire({
-                title: "Seguro de eliminar?",
-                text: "Esta accion es irreversible!",
+                title: "Está seguro de eliminar?",
+                text: "Está acción no se puede revertir!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Si, Eliminar!"
+                confirmButtonText: "Si, eliminar!"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.submit();
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            refreshTable();
+                            Swal.fire('Proceso existoso', response.message, 'success');
+                        },
+                        error: function(xhr) {
+                            var response = xhr.responseJSON;
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    });
                 }
             });
         });
+
+        function refreshTable() {
+            var table = $('#datatable').DataTable();
+            table.ajax.reload(null, false); // Recargar datos sin perder la paginación
+        }
     </script>
 
     @if (session('success') !== null)

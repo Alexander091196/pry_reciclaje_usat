@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->string('description');
+            $table->string('image')->nullable(); // Nuevo campo para almacenar la ruta de la imagen
             $table->unsignedBigInteger('horarie_id');
             $table->foreign('horarie_id')->references('id')->on('horaries');
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

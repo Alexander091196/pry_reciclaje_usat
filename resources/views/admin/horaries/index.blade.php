@@ -100,7 +100,7 @@
                         "data": "horf",
                     },
                     {
-                        "data": "calendar",
+                        "data": "horario",
                     },
                     {
                         "data": "edit",

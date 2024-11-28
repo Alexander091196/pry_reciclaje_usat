@@ -42,7 +42,7 @@ class HorariesController extends Controller
             $horariesCollection = collect($horaries);
     
             return DataTables::of($horariesCollection)
-                ->addColumn('calendar', function ($horary) {
+                ->addColumn('horario', function ($horary) {
                     return '
                         <a href="' . route('admin.horaries.show', $horary->id) . '" class="btn btn-secondary btn-sm">
                             <i class="fas fa-wrench"></i>
@@ -63,7 +63,7 @@ class HorariesController extends Controller
                             </button>
                         </form>';
                 })
-                ->rawColumns(['calendar', 'edit', 'delete']) // Declarar columnas que contienen HTML
+                ->rawColumns(['horario', 'edit', 'delete']) // Declarar columnas que contienen HTML
                 ->make(true);
         } else {
             // Si no es AJAX, devolver la vista normalmente
