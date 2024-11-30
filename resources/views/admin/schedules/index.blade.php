@@ -10,28 +10,27 @@
     <div class="p-2"></div>
     <div class="card">
         <div class="card-header">
-            <!--<a href="{{ route('admin.brands.create') }}" class="btn btn-success float-right"><i class="fas fa-plus"></i>
-                                                                                                                                                                                                                    Nuevo</a>-->
             <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
-            <h3>Marcas</h3>
+            <h3>Horarios</h3>
         </div>
         <div class="card-body table-responsive">
             <table class="table table-striped" id="datatable">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>LOGO</th>
                         <th>NOMBRE</th>
-                        <th>DESCRIPCIÓN</th>
+                        <th>HORA INICIO</th>
+                        <th>HORA FIN</th>
+                        <th>DESCRIPTION</th>
                         <th width="10"></th>
                     </tr>
                 </thead>
                 <tbody>
-
                 </tbody>
             </table>
         </div>
     </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -39,7 +38,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Formulario de la marca</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Mapa de zonas</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -60,26 +59,20 @@
 @stop
 @section('js')
     <script>
-        /*$(document).ready(function() {
-                                                                                $('#datatable').DataTable({
-                                                                                    language: {
-                                                                                        url: '//cdn.datatables.net/plug-ins/2.1.7/i18n/es-MX.json',
-                                                                                    },
-                                                                                });
-                                                                            })*/
-
         $(document).ready(function() {
             var table = $('#datatable').DataTable({
-                "ajax": "{{ route('admin.brands.index') }}", // La ruta que llama al controlador vía AJAX
+                "ajax": "{{ route('admin.schedules.index') }}", // La ruta que llama al controlador vía AJAX
                 "columns": [{
                         "data": "id",
                     },
                     {
-                        "data": "logo",
-                        "orderable": false,
-                        "searchable": false,
-                    }, {
                         "data": "name",
+                    },
+                    {
+                        "data": "time_start",
+                    },
+                    {
+                        "data": "time_end",
                     },
                     {
                         "data": "description",
@@ -89,17 +82,6 @@
                         "orderable": false,
                         "searchable": false,
                     }
-                    /*{
-                        "data": "edit",
-                        "orderable": false,
-                        "searchable": false,
-                    },
-                    {
-                        "data": "delete",
-                        "orderable": false,
-                        "searchable": false,
-                    }*/
-
                 ],
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
@@ -111,10 +93,10 @@
         $('#btnNuevo').click(function() {
 
             $.ajax({
-                url: "{{ route('admin.brands.create') }}",
+                url: "{{ route('admin.schedules.create') }}",
                 type: "GET",
                 success: function(response) {
-                    $("#formModal #exampleModalLabel").html("Nueva Marca");
+                    $("#formModal #exampleModalLabel").html("Nuevo horario");
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
 
@@ -152,10 +134,10 @@
             var id = $(this).attr("id");
 
             $.ajax({
-                url: "{{ route('admin.brands.edit', 'id') }}".replace('id', id),
+                url: "{{ route('admin.schedules.edit', 'id') }}".replace('id', id),
                 type: "GET",
                 success: function(response) {
-                    $("#formModal #exampleModalLabel").html("Modificar Marca");
+                    $("#formModal #exampleModalLabel").html("Modificar horario");
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
 
@@ -220,20 +202,9 @@
             });
         });
 
-        /*function refreshTable() {
-            $.ajax({
-                url: "{{ route('admin.brands.index') }}",
-                type: "GET",
-                success: function(response) {
-                    $('tbody').html($(response).find('tbody').html())
-                }
-            });
-        }*/
-
         function refreshTable() {
             var table = $('#datatable').DataTable();
             table.ajax.reload(null, false); // Recargar datos sin perder la paginación
         }
     </script>
-
 @endsection

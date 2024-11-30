@@ -54,7 +54,9 @@
 
 @section('css')
     {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    <link rel="stylesheet" href="/css/admin_custom.css">
+    {{-- Add here extra stylesheets --}}
+    {{--  --}}
 @stop
 
 @section('js')
@@ -62,14 +64,29 @@
         $(document).ready(function() {
             var table = $('#datatable').DataTable({
                 "ajax": "{{ route('admin.users.index') }}", // La ruta que llama al controlador vía AJAX
-                "columns": [
-                    { "data": "id" },
-                    { "data": "dni" },
-                    {"data": "license"},
-                    { "data": "name" },
-                    { "data": "email" },
-                    { "data": "usertype" }, // Aquí asumimos que `usertype` contiene el nombre del tipo de usuario
-                    { "data": "actions", "orderable": false, "searchable": false }
+                "columns": [{
+                        "data": "id"
+                    },
+                    {
+                        "data": "dni"
+                    },
+                    {
+                        "data": "license"
+                    },
+                    {
+                        "data": "name"
+                    },
+                    {
+                        "data": "email"
+                    },
+                    {
+                        "data": "usertype"
+                    }, // Aquí asumimos que `usertype` contiene el nombre del tipo de usuario
+                    {
+                        "data": "actions",
+                        "orderable": false,
+                        "searchable": false
+                    }
                 ],
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
@@ -101,7 +118,8 @@
                             success: function(response) {
                                 $("#formModal").modal("hide");
                                 refreshTable();
-                                Swal.fire('Proceso exitoso', response.message, 'success');
+                                Swal.fire('Proceso exitoso', response.message,
+                                    'success');
                             },
                             error: function(xhr) {
                                 var response = xhr.responseJSON;
@@ -139,7 +157,8 @@
                             success: function(response) {
                                 $("#formModal").modal("hide");
                                 refreshTable();
-                                Swal.fire('Proceso exitoso', response.message, 'success');
+                                Swal.fire('Proceso exitoso', response.message,
+                                    'success');
                             },
                             error: function(xhr) {
                                 var response = xhr.responseJSON;
@@ -188,4 +207,3 @@
     </script>
 
 @endsection
-

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\OccupantsController;
 use App\Http\Controllers\admin\ProgrammingsController;
 use App\Http\Controllers\admin\RouteController;
 use App\Http\Controllers\admin\RoutezoneController;
+use App\Http\Controllers\admin\ScheduleController;
 use App\Http\Controllers\admin\SectorController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\UsertypesController;
@@ -53,7 +54,7 @@ Route::get('routezones/create/{route_id}', [RoutezoneController::class, 'create'
     ->name('admin.routezones.create');
 
 
-    
+
 Route::resource('/occupants', VehicleOccupantsController::class)->names('admin.vehicleoccupants');
 Route::resource('/occupant', OccupantsController::class)->names('admin.occupant');
 
@@ -68,3 +69,7 @@ Route::get('/vehicles/{id}', [VehicleController::class, 'showOccupants'])->name(
 Route::resource('/activitie', ActivitiesController::class)->names('admin.activities');
 Route::resource('/horarie', HorariesController::class)->names('admin.horaries');
 Route::resource('/action', ActionsController::class)->names('admin.actions');
+
+
+Route::resource('schedules', ScheduleController::class)->names('admin.schedules');
+
