@@ -1,14 +1,14 @@
-<div class="form-row">
-    <div class="form-group col-4">
-        {!! Form::label('date', 'Fecha') !!}
-        {!! Form::date('date', null, [
-            'class' => 'form-control',
-            'placeholder' => 'Seleccione una fecha',
-            'required',
-        ]) !!}
-    </div>
+<div class="form-group">
+    {!! Form::label('date', 'Fecha') !!}
+    {!! Form::text('date', null, [
+        'class' => 'form-control',
+        'id' => 'dateInput', // Necesario para que Flatpickr lo reconozca
+        'placeholder' => 'Seleccione una fecha',
+        'required',
+    ]) !!}
 </div>
 
+{!! Form::hidden('horarie_id', session('horarie_id')) !!}
 <div class="form-group">
     {!! Form::label('description', 'Descripción') !!}
     {!! Form::textarea('description', null, [
@@ -49,4 +49,32 @@
     $('#imageButton').click(function() {
         $('#imageInput').click();
     });
+
+</script>
+<script>
+   document.addEventListener('DOMContentLoaded', function () {
+    const allowedDay = "LUNES"; // Cambia dinámicamente este valor según el horario
+    const dayMapping = {
+        "DOMINGO": 0,
+        "LUNES": 1,
+        "MARTES": 2,
+        "MIÉRCOLES": 3,
+        "JUEVES": 4,
+        "VIERNES": 5,
+        "SÁBADO": 6,
+    };
+
+    const dayOfWeek = dayMapping[allowedDay];
+
+    flatpickr("#dateInput", {
+        dateFormat: "Y-m-d",
+        enable: [
+            function (date) {
+                // Habilita solo los días que coincidan con el día permitido
+                return date.getDay() === dayOfWeek;
+            }
+        ],
+        locale: "es", // Configura el idioma
+    });
+});
 </script>

@@ -16,8 +16,8 @@
                     <tr>
                         <th>ID</th>
                         <th>NOMBRE</th>
-                        <th>FECHA INICIO</th>
-                        <th>FECHA FINAL</th>
+                        <th>INICIO</th>
+                        <th>FINAL</th>
                         <th width=5>HOR</th>
                         <th width=5>EDIT</th>
                         <th width=5>DEL</th>

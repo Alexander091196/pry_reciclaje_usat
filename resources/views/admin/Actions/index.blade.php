@@ -80,7 +80,13 @@
 @section('css')
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 @stop
+
+
+
 
 @section('js')
     <script>
@@ -114,43 +120,72 @@
         });
 
         $('#btnNuevo').click(function() {
-            $.ajax({
-                url: "{{ route('admin.actions.create') }}",
-                type: "GET",
-                success: function(response) {
-                    $("#formModal #exampleModalLabel").html("Nuevo acción");
-                    $("#formModal .modal-body").html(response);
-                    $("#formModal").modal("show");
+    $.ajax({
+        url: "{{ route('admin.actions.create') }}",
+        type: "GET",
+        success: function(response) {
+            // Carga el contenido del modal
+            $("#formModal #exampleModalLabel").html("Nueva acción");
+            $("#formModal .modal-body").html(response);
+            $("#formModal").modal("show");
 
-                    $("#formModal form").on("submit", function(e) {
-                        e.preventDefault();
+            // Inicializa Flatpickr dentro del modal
+            flatpickr("#dateInput", {
+                dateFormat: "Y-m-d",
+                enable: [
+                    function (date) {
+                        // Configuración para habilitar solo los lunes
+                        const allowedDay = "{{ $hor->day }}"; // Pasa el día dinámicamente desde el backend
+                        const dayMapping = {
+                            "DOMINGO": 0,
+                            "LUNES": 1,
+                            "MARTES": 2,
+                            "MIERCOLES": 3,
+                            "JUEVES": 4,
+                            "VIERNES": 5,
+                            "SABADO": 6,
+                        };
 
-                        var form = $(this);
-                        var formData = new FormData(this);
-
-                        $.ajax({
-                            url: form.attr('action'),
-                            type: form.attr('method'),
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function(response) {
-                                $("#formModal").modal("hide");
-                                refreshTable();
-                                Swal.fire('Proceso existoso', response.message,
-                                    'success');
-                            },
-                            error: function(xhr) {
-                                var response = xhr.responseJSON;
-                                Swal.fire('Error', response.message, 'error');
-                            }
-                        })
-
-                    })
-
-                }
+                        const dayOfWeek = dayMapping[allowedDay];
+                        return date.getDay() === dayOfWeek;
+                    }
+                ],
+                locale: "es", // Configura el idioma
             });
-        });
+
+            // Manejo del formulario dentro del modal
+            $("#formModal form").on("submit", function(e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $("#formModal").modal("hide");
+                        refreshTable();
+                        Swal.fire('Proceso exitoso', response.message, 'success');
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseJSON); // Agrega este log
+                        if (xhr.status === 422) {
+                            Swal.fire('Error', xhr.responseJSON.message, 'error');
+                        } else if (xhr.status === 500) {
+                            Swal.fire('Error', 'Error interno del servidor: ' + xhr.responseJSON.message, 'error');
+                        } else {
+                            Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
+                        }
+                    }
+                });
+            });
+        }
+    });
+});
 
         $(document).on('click', '.btnEditar', function() {
             var id = $(this).attr("id");
@@ -162,6 +197,30 @@
                     $("#formModal #exampleModalLabel").html("Modificar acción");
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
+
+                    // Inicializa Flatpickr dentro del modal
+            flatpickr("#dateInput", {
+                dateFormat: "Y-m-d",
+                enable: [
+                    function (date) {
+                        // Configuración para habilitar solo los lunes
+                        const allowedDay = "{{ $hor->day }}"; // Pasa el día dinámicamente desde el backend
+                        const dayMapping = {
+                            "DOMINGO": 0,
+                            "LUNES": 1,
+                            "MARTES": 2,
+                            "MIERCOLES": 3,
+                            "JUEVES": 4,
+                            "VIERNES": 5,
+                            "SABADO": 6,
+                        };
+
+                        const dayOfWeek = dayMapping[allowedDay];
+                        return date.getDay() === dayOfWeek;
+                    }
+                ],
+                locale: "es", // Configura el idioma
+            });
 
                     $("#formModal form").on("submit", function(e) {
                         e.preventDefault();
