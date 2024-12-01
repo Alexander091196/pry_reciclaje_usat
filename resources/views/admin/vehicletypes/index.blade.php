@@ -11,7 +11,7 @@
     <div class="card">
         <div class="card-header">
             <!--<a href="{{ route('admin.vehicletypes.create') }}" class="btn btn-success float-right"><i class="fas fa-plus"></i>
-                                                                                                                                                                                                            Nuevo</a>-->
+                                                                                                                                                                                                                    Nuevo</a>-->
             <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
             <h3>Tipo de Vehiculo</h3>
         </div>
@@ -53,13 +53,13 @@
 
 @section('css')
     {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    <link rel="stylesheet" href="/css/admin_custom.css">
+    {{-- Add here extra stylesheets --}}
+    {{--  --}}
 @stop
 
 @section('js')
     <script>
-
-
         $(document).ready(function() {
             var table = $('#datatable').DataTable({
                 "ajax": "{{ route('admin.vehicletypes.index') }}", // La ruta que llama al controlador vía AJAX

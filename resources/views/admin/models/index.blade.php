@@ -46,7 +46,9 @@
 
 @section('css')
     {{-- Add here extra stylesheets --}}
-    {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
+    <link rel="stylesheet" href="/css/admin_custom.css">
+    {{-- Add here extra stylesheets --}}
+    {{--  --}}
 @stop
 @section('js')
     <script>

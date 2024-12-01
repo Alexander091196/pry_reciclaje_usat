@@ -70,7 +70,7 @@
                 </div>
                 <div class="modal-footer">
                     <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                              <button type="button" class="btn btn-primary">Save changes</button>-->
+                                                  <button type="button" class="btn btn-primary">Save changes</button>-->
                 </div>
             </div>
         </div>
@@ -78,6 +78,8 @@
 @stop
 
 @section('css')
+    {{-- Add here extra stylesheets --}}
+    <link rel="stylesheet" href="/css/admin_custom.css">
     {{-- Add here extra stylesheets --}}
     {{-- <link rel="stylesheet" href="/css/admin_custom.css"> --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

@@ -25,7 +25,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -41,6 +42,8 @@
 @stop
 
 @section('css')
+    {{-- Add here extra stylesheets --}}
+    <link rel="stylesheet" href="/css/admin_custom.css">
     @vite(['resources/css/app.css'])
     @livewireStyles
 @stop
@@ -53,9 +56,12 @@
             // Configurar DataTable
             var table = $('#datatable').DataTable({
                 "ajax": "{{ route('admin.vehiclecolors.index') }}",
-                "columns": [
-                    { "data": "id" },
-                    { "data": "name" },
+                "columns": [{
+                        "data": "id"
+                    },
+                    {
+                        "data": "name"
+                    },
                     {
                         "data": null,
                         "render": function(data, type, row) {
@@ -70,7 +76,11 @@
                             return `rgb(${row.red}, ${row.green}, ${row.blue})`;
                         }
                     },
-                    { "data": "actions", "orderable": false, "searchable": false }
+                    {
+                        "data": "actions",
+                        "orderable": false,
+                        "searchable": false
+                    }
                 ],
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
@@ -102,10 +112,13 @@
                                 success: function(response) {
                                     $("#formModal").modal("hide");
                                     table.ajax.reload(null, false);
-                                    Swal.fire('Proceso exitoso', response.message, 'success');
+                                    Swal.fire('Proceso exitoso', response
+                                        .message, 'success');
                                 },
                                 error: function(xhr) {
-                                    Swal.fire('Error', 'No se pudo registrar el color.', 'error');
+                                    Swal.fire('Error',
+                                        'No se pudo registrar el color.',
+                                        'error');
                                 }
                             });
                         });
@@ -143,10 +156,13 @@
                                 success: function(response) {
                                     $("#formModal").modal("hide");
                                     table.ajax.reload(null, false);
-                                    Swal.fire('Proceso exitoso', response.message, 'success');
+                                    Swal.fire('Proceso exitoso', response
+                                        .message, 'success');
                                 },
                                 error: function(xhr) {
-                                    Swal.fire('Error', 'No se pudo actualizar el color.', 'error');
+                                    Swal.fire('Error',
+                                        'No se pudo actualizar el color.',
+                                        'error');
                                 }
                             });
                         });
@@ -181,7 +197,8 @@
                                 Swal.fire('Eliminado', response.message, 'success');
                             },
                             error: function(xhr) {
-                                Swal.fire('Error', 'No se pudo eliminar el color.', 'error');
+                                Swal.fire('Error', 'No se pudo eliminar el color.',
+                                    'error');
                             }
                         });
                     }
