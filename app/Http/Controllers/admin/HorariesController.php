@@ -44,7 +44,7 @@ class HorariesController extends Controller
             return DataTables::of($horariesCollection)
                 ->addColumn('horario', function ($horary) {
                     return '
-                        <a href="' . route('admin.horaries.show', $horary->id) . '" class="btn btn-secondary btn-sm">
+                        <a href="' . route('admin.horaries.show', $horary->id) . '" class="btn btn-warning btn-sm">
                             <i class="fas fa-wrench"></i>
                         </a>';
                 })
@@ -111,9 +111,7 @@ class HorariesController extends Controller
             ->exists();
 
         if ($existingHorarie) {
-            return redirect()->route('admin.horaries.index')->with('error', 'Ya existe un horario registrado con el mismo día, tipo de mantenimiento y dentro del mismo rango de horas');
-
-            //return redirect()->back()->withErrors(['error' => 'Ya existe un horario registrado con el mismo día, tipo de mantenimiento y dentro del mismo rango de horas.'])->withInput();
+            return response()->json(['message' => 'Ya existe un horario registrado con el mismo día, tipo de mantenimiento y dentro del mismo rango de horas'], 422);
         }
 
         Horarie::create($request->all());
@@ -193,13 +191,31 @@ class HorariesController extends Controller
      */
     public function destroy(string $id)
     {
-        $horary = Horarie::find($id);
-        $action = Action::where('horarie_id', $id)->count();
-        if ($action > 0) {
-            return redirect()->route('admin.horaries.index')->with('error', 'Horario contiene activiades asociados.');
-        } else {
+        try {
+            $horary = Horarie::findOrFail($id);
+    
+            // Verificar si existen actividades asociadas al horario
+            $actionCount = Action::where('horarie_id', $id)->count();
+    
+            if ($actionCount > 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No se puede eliminar. El horario contiene actividades asociadas.',
+                ], 422);
+            }
+    
+            // Eliminar el horario
             $horary->delete();
-            return redirect()->route('admin.horaries.index')->with('success', 'Horario eliminado correctamente.');
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Horario eliminado correctamente.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ocurrió un error al eliminar el horario: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }

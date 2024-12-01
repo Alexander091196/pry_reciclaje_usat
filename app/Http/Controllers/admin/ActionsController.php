@@ -68,49 +68,64 @@ class ActionsController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validación de los datos del formulario
+            // Validar datos enviados
             $request->validate([
                 'date' => 'required|date',
                 'description' => 'required|string|max:255',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => 'nullable|image|max:2048',
+                'horarie_id' => 'required|exists:horaries,id',
             ]);
-
-            // Obtener el horario y la actividad asociados
-            $horarie = Horarie::find(session('horarie_id'));
-            $activitie = Activitie::find($horarie->activitie_id);
-
-            // Validar que la fecha esté dentro del rango de la actividad
-            $startDate = \Carbon\Carbon::parse($activitie->startdate);
-            $endDate = \Carbon\Carbon::parse($activitie->lastdate);
-            $requestDate = \Carbon\Carbon::parse($request->date);
-
-            if ($requestDate->lt($startDate) || $requestDate->gt($endDate)) {
-                // Si la fecha está fuera del rango, devolver un mensaje personalizado
-                return redirect()->route('admin.actions.index')
-                    ->with('error', 'La fecha de la acción está fuera del rango de fechas de la actividad.');
+    
+            // Obtener el horario y la actividad asociada
+            $horario = Horarie::findOrFail($request->horarie_id);
+            $actividad = Activitie::findOrFail($horario->activitie_id);
+    
+            // Validar que el día de la fecha coincida con el horario
+            $selectedDate = \Carbon\Carbon::parse($request->date);
+            $allowedDay = array_search(strtoupper($horario->day), [
+                "DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO",
+            ]);
+    
+            if ($selectedDate->dayOfWeek !== $allowedDay) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'La fecha seleccionada no corresponde al día permitido (' . $horario->day . ').',
+                ], 422);
             }
-
-            // Procesar la imagen (si se sube una nueva)
-            $imagePath = '';
+    
+            // Validar que la fecha pertenece al mes permitido
+            $allowedMonth = \Carbon\Carbon::parse($actividad->startdate)->format('Y-m');
+            if ($selectedDate->format('Y-m') !== $allowedMonth) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'La fecha seleccionada no corresponde al mes permitido (' . $allowedMonth . ').',
+                ], 422);
+            }
+    
+            // Procesar imagen
+            $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('public/actions');
-                $imagePath = Storage::url($imagePath);
+                $imagePath = $request->file('image')->store('images', 'public');
             }
-
-            // Crear la nueva acción
+    
+            // Crear acción
             Action::create([
                 'date' => $request->date,
                 'description' => $request->description,
                 'image' => $imagePath,
-                'horarie_id' => session('horarie_id')
+                'horarie_id' => $request->horarie_id,
             ]);
-
-            // Mensaje de éxito cuando la acción se registra correctamente
-            return redirect()->route('admin.actions.index')
-                ->with('success', 'Actividad registrada correctamente.');
-        } catch (\Throwable $th) {
-            return redirect()->route('admin.actions.index')
-                ->with('error', 'Error en el registro: ' . $th->getMessage());
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Actividad registrada correctamente.',
+            ], 200);
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ocurrió un error al registrar la actividad.',
+            ], 500);
         }
     }
 
@@ -132,62 +147,72 @@ class ActionsController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            // Validación de los datos del formulario
+            // Validar los datos del formulario
             $request->validate([
                 'date' => 'required|date',
                 'description' => 'required|string|max:255',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-
+    
             // Obtener el horario y la actividad asociados
-            $horarie = Horarie::find(session('horarie_id'));
-            $activitie = Activitie::find($horarie->activitie_id);
-
+            $horarie = Horarie::findOrFail(session('horarie_id'));
+            $activitie = Activitie::findOrFail($horarie->activitie_id);
+    
             // Validar que la fecha esté dentro del rango de la actividad
             $startDate = \Carbon\Carbon::parse($activitie->startdate);
             $endDate = \Carbon\Carbon::parse($activitie->lastdate);
             $requestDate = \Carbon\Carbon::parse($request->date);
-
+    
             if ($requestDate->lt($startDate) || $requestDate->gt($endDate)) {
-                return redirect()->route('admin.actions.index')
-                    ->with('error', 'La fecha de la acción debe estar dentro del rango de fechas de la actividad.');
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'La fecha de la acción debe estar dentro del rango de fechas de la actividad.',
+                ], 422);
             }
-
+    
             // Validar que el día de la semana de la fecha coincida con el día del horario
-            //$dayOfWeek = $requestDate->format('l'); // Obtener el día de la semana (lunes, martes, etc.)
-
-            // Aquí asumimos que el campo `day` en el modelo Horarie tiene el nombre del día en inglés ("Monday", "Tuesday", etc.)
-            // if (strtolower($dayOfWeek) !== strtolower($horarie->day)) {
-            //     return redirect()->route('admin.actions.index')
-            //         ->with('error', 'La fecha de la acción no coincide con el día del horario.');
-            // }
-
+            $allowedDay = array_search(strtoupper($horarie->day), [
+                "DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO",
+            ]);
+    
+            if ($requestDate->dayOfWeek !== $allowedDay) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'La fecha seleccionada no corresponde al día permitido (' . $horarie->day . ').',
+                ], 422);
+            }
+    
             // Obtener la acción existente
             $action = Action::findOrFail($id);
-
+    
             // Procesar la imagen (si se sube una nueva)
             $imagePath = $action->image;
             if ($request->hasFile('image')) {
                 // Eliminar la imagen anterior si existe
                 if ($action->image && file_exists(storage_path('app/public/' . $action->image))) {
-                    unlink(storage_path('app/public/' . $action->image)); // Eliminar la imagen anterior
+                    unlink(storage_path('app/public/' . $action->image));
                 }
                 // Guardar la nueva imagen
                 $imagePath = $request->file('image')->store('public/actions');
                 $imagePath = Storage::url($imagePath);
             }
-
+    
             // Actualizar la acción
             $action->update([
                 'date' => $request->date,
                 'description' => $request->description,
-                'image' => $imagePath, // Mantener la imagen o la nueva
-                'horarie_id' => session('horarie_id') // El ID del horario desde la sesión
+                'image' => $imagePath,
             ]);
-
-            return redirect()->route('admin.actions.index')->with('success', 'Actividad actualizada correctamente.');
-        } catch (\Throwable $th) {
-            return redirect()->route('admin.actions.index')->with('error', 'Error en la actualización: ' . $th->getMessage());
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Actividad actualizada correctamente.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error en la actualización: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -199,15 +224,23 @@ class ActionsController extends Controller
     {
         try {
             $action = Action::findOrFail($id);
+    
             // Eliminar la imagen si existe
             if ($action->image && file_exists(storage_path('app/public/' . $action->image))) {
-                unlink(storage_path('app/public/' . $action->image)); // Eliminar imagen
+                unlink(storage_path('app/public/' . $action->image));
             }
+    
             $action->delete();
-
-            return redirect()->route('admin.actions.index')->with('success', 'Actividad eliminada correctamente');
-        } catch (\Throwable $th) {
-            return redirect()->route('admin.actions.index')->with('error', 'Error al eliminar la actividad: ' . $th->getMessage());
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Actividad eliminada correctamente.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al eliminar la actividad: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }

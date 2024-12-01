@@ -29,8 +29,8 @@ class ActivitiesController extends Controller
             return DataTables::of($activities)
                 ->addColumn('calendar', function ($activitie) {
                     return '
-                        <a href="' . route('admin.activities.show', $activitie->id) . '" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-calendar-alt"></i>
+                        <a href="' . route('admin.activities.show', $activitie->id) . '" class="btn btn-warning btn-sm">
+                            <i class="far fa-calendar-alt"></i>
                         </a>';
                 })
                 ->addColumn('edit', function ($activitie) {
@@ -128,15 +128,31 @@ class ActivitiesController extends Controller
      */
     public function destroy(string $id)
     {
-        $act = Activitie::find($id);
-
-        $hor = Horarie::where('activitie_id', $id)->count();
-
-        if ($hor > 0) {
-            return redirect()->route('admin.activities.index')->with('error', 'Mantenimiento contiene horarios asociados');
-        } else {
+        try {
+            $act = Activitie::findOrFail($id);
+    
+            // Verificar si existen horarios asociados a la actividad
+            $horCount = Horarie::where('activitie_id', $id)->count();
+    
+            if ($horCount > 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No se puede eliminar. El mantenimiento contiene horarios asociados.',
+                ], 422);
+            }
+    
+            // Eliminar la actividad
             $act->delete();
-            return redirect()->route('admin.activities.index')->with('Success', 'Mantenimiento eliminado');
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Mantenimiento eliminado correctamente.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ocurrió un error al eliminar el mantenimiento: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }
