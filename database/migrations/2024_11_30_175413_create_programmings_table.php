@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->date('startdate');
             $table->date('lastdate');
-            $table->time('starttime');
+            $table->unsignedBigInteger('schedule_id');
+            $table->foreign('schedule_id')->references('id')->on('schedules');
             $table->timestamps();
         });
     }

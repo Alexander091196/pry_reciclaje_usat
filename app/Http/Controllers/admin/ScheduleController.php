@@ -56,8 +56,7 @@ class ScheduleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-
-            'name' => ['required', 'in:Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo'],
+            'name' => ['required', 'in:Mañana,Tarde,Madrugada'],
             'description' => 'nullable|string',
         ]);
 
@@ -98,7 +97,7 @@ class ScheduleController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'name' => ['required', 'in:Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo'],
+            'name' => ['required', 'in:Mañana,Tarde,Madrugada'],
             'time_start' => 'required|date_format:H:i',
             'time_end' => 'required|date_format:H:i|after:time_start',
             'description' => 'nullable|string',
