@@ -8,17 +8,19 @@
     <div class="card">
         <div class="card-header">
             <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
-            <h3>Programación</h3>
+            <h3>Lista de programación</h3>
         </div>
         <div class="card-body table-responsive">
             <table class="table table-striped" id="datatable">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>FECHA INICIO</th>
-                        <th>FECHA FIN</th>
+                        <th>FECHA</th>
+                        <th>VEHICULO</th>
+                        <th>RUTA</th>
+                        <th>ESTADO</th>
                         <th>TURNO</th>
-                        <th width="5">VER</th>
+                        <th width=5></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,22 +58,29 @@
     <script>
         $(document).ready(function() {
             var table = $('#datatable').DataTable({
-                "ajax": "{{ route('admin.programming.index') }}", // La ruta que llama al controlador vía AJAX
+                "ajax": "{{ route('admin.programming.show', $programming->id) }}", // Ruta que devuelve los datos en formato JSON
                 "columns": [{
                         "data": "id",
                     },
                     {
-                        "data": "startdate",
+                        "data": "fecha",
                     },
                     {
-                        "data": "lastdate",
+                        "data": "vehiculo",
+                    },
+                    {
+                        "data": "ruta",
+                    },
+                    {
+                        "data": "estado",
                     },
                     {
                         "data": "turno",
                     },
                     {
-                        "data": "ver",
+                        "data": "actions",
                     },
+
                 ],
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
@@ -145,3 +154,57 @@
     @endif
 
 @stop
+
+
+
+
+
+
+{{-- 
+//     $(".btnEditar").click(function() {
+//         var id = $(this).attr(
+//             'id'
+//             ); // Obtener el ID del botón (asumiendo que el botón tiene el atributo 'id' con el valor correcto)
+
+//         $.ajax({
+//             url: "{{ route('admin.programming.edit', ':id') }}".replace(':id',
+//                 id), // Reemplazar :id con el valor real
+//             type: "GET",
+//             success: function(response) {
+//                 // Insertar la respuesta (formulario de edición) en el cuerpo del modal
+//                 $('#formModalNormal .modal-body').html(
+//                     response); // Asegúrate de usar el ID correcto de tu modal
+
+//                 $('#formModalNormal').modal('show'); // Mostrar el modal
+//             },
+//             error: function() {
+//                 alert("Ocurrió un error al cargar el formulario de edición.");
+//             }
+//         });
+//     });
+
+
+
+
+//     $(".fmrEliminar").submit(function(e) {
+//         e.preventDefault();
+//         Swal.fire({
+//             title: "Seguro de eliminar?",
+//             text: "Esta accion es irreversible!",
+//             icon: "warning",
+//             showCancelButton: true,
+//             confirmButtonColor: "#3085d6",
+//             cancelButtonColor: "#d33",
+//             confirmButtonText: "Si, eliminar!"
+//         }).then((result) => {
+//             if (result.isConfirmed) {
+//                 this.submit();
+//             }
+//         });
+//     });
+
+//     function refreshTable() {
+//         var table = $('#datatable').DataTable();
+//         table.ajax.reload(null, false); // Recargar datos sin perder la paginación
+//     }
+// --}}

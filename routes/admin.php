@@ -22,6 +22,7 @@ use App\Http\Controllers\admin\VehiclecolorsController;
 use App\Http\Controllers\admin\VehicleController;
 use App\Http\Controllers\admin\VehicleimagesController;
 use App\Http\Controllers\Admin\VehicleOccupantsController;
+use App\Http\Controllers\admin\VehicleroutesController;
 use App\Http\Controllers\admin\VehicletypesController;
 use App\Http\Controllers\admin\ZoneController;
 use App\Http\Controllers\admin\ZonecoordController;
@@ -72,4 +73,7 @@ Route::resource('/action', ActionsController::class)->names('admin.actions');
 
 
 Route::resource('schedules', ScheduleController::class)->names('admin.schedules');
+
+Route::resource('vehicleroutes', VehicleroutesController::class)->names('admin.vehicleroutes');
+
 
