@@ -4,7 +4,7 @@
         {!! Form::date('date_route', null, [
             'class' => 'form-control',
             'required',
-            'disabled',
+            'disabled' => 'disabled'
         ]) !!}
     </div>
     <div class="form-group col-6">
@@ -23,7 +23,7 @@
         {!! Form::select('vehicle_id', $vehicles, null, ['class' => 'form-control', 'id' => 'vehicle_id', 'required']) !!}
     </div>
     <div class="form-group col-6">
-        {!! Form::label('route_id', 'Ruta:') !!}
+        {!! Form::label('route_id', 'Ruta') !!}
         {!! Form::select('route_id', $routes, null, [
             'class' => 'form-control',
             'id' => 'route_id',
@@ -49,5 +49,5 @@
         'class' => 'form-control',
         'placeholder' => 'Descripción del sector (opcional)',
     ]) !!}
-    <small class="form-text text-muted">Opcional: Caracteristicas del sector.</small>
+    <small class="form-text text-muted">Opcional: Características del sector.</small>
 </div>

@@ -55,45 +55,61 @@ class ProgrammingsController extends Controller
      */
     public function store(Request $request)
     {
+        // Validar que la fecha de inicio sea menor o igual a la fecha final
+        if (strtotime($request->startdate) > strtotime($request->lastdate)) {
+            return redirect()->route('admin.programming.index')->with('error', 'La fecha de inicio no puede ser mayor que la fecha final.');
+        }
+
         $p = [
             'startdate' => $request->startdate,
             'lastdate' => $request->lastdate,
             'vehicle_id' => $request->vehicle_id,
             'route_id' => $request->route_id,
-            'schedule_id' => $request->schedule_id, // Aquí agregamos el turno seleccionado
+            'schedule_id' => $request->schedule_id,
         ];
 
+        // Validar si ya existe una programación
         if ($this->searchifexist($p) == 0) {
-            $p = Programming::create([
+            $programming = Programming::create([
                 'startdate' => $request->startdate,
                 'lastdate' => $request->lastdate,
-                'schedule_id' => $request->schedule_id, // Guardamos el turno
+                'schedule_id' => $request->schedule_id,
             ]);
 
-            // Crear las rutas y programación
+            // Crear rutas y programaciones
             $begin = new DateTime($request->startdate);
-            $fechafinal = date($request->lastdate);
-            $final = date("d-m-Y", strtotime($fechafinal . '+ 1 days'));
+            $end = new DateTime($request->lastdate);
+            $end->modify('+1 day'); // Incluir la última fecha en el período
 
-            $interval = DateInterval::createFromDateString('1 day');
-            $period = new DatePeriod($begin, $interval, new DateTime($final));
+            $interval = DateInterval::createFromDateString('1 days');
+            $period = new DatePeriod($begin, $interval, $end);
 
             foreach ($period as $dt) {
-                Vehicleroutes::create([
-                    'date_route' => $dt->format("Y-m-d"),
-                    'description' => '',
-                    'vehicle_id' => $request->vehicle_id,
-                    'route_id' => $request->route_id,
-                    'routestatus_id' => 1,
-                    'programming_id' => $p->id
-                ]);
+                // Verificar si ya existe una ruta para esta fecha
+                $existingRoute = Vehicleroutes::where('date_route', $dt->format("Y-m-d"))
+                    ->where('vehicle_id', $request->vehicle_id)
+                    ->where('route_id', $request->route_id)
+                    ->first();
+
+                if (!$existingRoute) {
+                    // Crear solo si no existe
+                    Vehicleroutes::create([
+                        'date_route' => $dt->format("Y-m-d"),
+                        'description' => '',
+                        'vehicle_id' => $request->vehicle_id,
+                        'route_id' => $request->route_id,
+                        'routestatus_id' => 1,
+                        'programming_id' => $programming->id,
+                    ]);
+                }
             }
 
-            return redirect()->route('admin.programming.index')->with('success', 'Programación registrada');
+            return redirect()->route('admin.programming.index')->with('success', 'Programación registrada y rutas actualizadas.');
         } else {
-            return redirect()->route('admin.programming.index')->with('error', 'Ya existe una programación entre esos días, ruta y vehículo, por favor verifique');
+            return redirect()->route('admin.programming.index')->with('error', 'Ya existe una programación entre esos días, ruta y vehículo, por favor verifique.');
         }
     }
+
 
 
     /**
@@ -125,17 +141,15 @@ class ProgrammingsController extends Controller
             return DataTables::of($listado)
                 ->addColumn('actions', function ($listado) {
                     return '      
-                            <form action="' . route('admin.programming.destroy', $listado->id) . '" method="POST" class="frmEliminar d-inline">
-                                ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                            </form>';
+                            <button class="btnEditar btn btn-primary btn-sm" id="' . $listado->id . '">
+                            <i class="fa fa-edit"></i>
+                        </button>';
                 })
                 ->rawColumns(['actions'])  // Declarar columnas que contienen HTML
                 ->make(true);
         } else {
             return view('admin.programming.show', compact('programming', 'listado'));
         }
-
     }
 
 
@@ -145,21 +159,7 @@ class ProgrammingsController extends Controller
      */
     public function edit(string $id)
     {
-        // Buscar el registro de Vehicleroutes con la relación 'programming'
-        $vr = Vehicleroutes::with('programming')->find($id);
-
-        // Verificar si se encontró el registro
-        if (!$vr) {
-            return redirect()->route('admin.programming.index')->with('error', 'Programación no encontrada.');
-        }
-
-        // Obtener los datos necesarios para llenar los campos del formulario
-        $vehicles = Vehicle::pluck('name', 'id');
-        $routes = Route::pluck('name', 'id');
-        $schedules = Schedule::pluck('name', 'id');
-
-        // Pasar los datos a la vista
-        return view('admin.programming.edit', compact('vr', 'vehicles', 'routes', 'schedules'));
+        //
     }
 
 
@@ -168,71 +168,18 @@ class ProgrammingsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Buscar el registro de Vehicleroutes con la relación 'programming'
-        $vr = Vehicleroutes::with('programming')->find($id);
-
-        // Verificar si se encontró el registro
-        if (!$vr) {
-            return redirect()->route('admin.programming.index')->with('error', 'Programación no encontrada.');
-        }
-
-        // Validar los datos del formulario si es necesario
-        $request->validate([
-            'description' => 'required|string|max:255',
-            'routestatus_id' => 'required|exists:routestatus,id',
-            // Aquí puedes agregar más validaciones si es necesario
-        ]);
-
-        // Actualizar los valores de 'Vehicleroutes'
-        $vr->update([
-            'description' => $request->description,
-            'routestatus_id' => $request->routestatus_id,
-        ]);
-
-        // Redirigir con un mensaje de éxito
-        return redirect()->route('admin.programming.index')->with('success', 'Programación actualizada correctamente.');
+        //
     }
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $programming = Vehicleroutes::find($id);
-        $programming->delete();
-        return redirect()->route('admin.programming.index')->with('success', 'Programacion eliminada');
-    }
+        // $programming = Vehicleroutes::find($id);
+        // $programming->delete();
+        // return redirect()->route('admin.programming.index')->with('success', 'Programacion eliminada');
 
-    public function searchprogramming(Request $request)
-    {
-        $listado = DB::select(
-            'SELECT 
-                vr.id, 
-                vr.date_route AS fecha, 
-                rs.name AS estado, 
-                v.name AS vehiculo, 
-                r.name AS ruta, 
-                s.name AS turno, -- Traemos el nombre del turno
-                vr.description
-            FROM vehicleroutes vr
-            INNER JOIN routes r ON vr.route_id = r.id
-            INNER JOIN vehicles v ON vr.vehicle_id = v.id
-            INNER JOIN programmings p ON vr.programming_id = p.id
-            INNER JOIN routestatus rs ON vr.routestatus_id = rs.id
-            INNER JOIN schedules s ON p.schedule_id = s.id -- Relacionamos con los turnos
-                WHERE vr.vehicle_id = ? 
-                AND vr.route_id = ? 
-                AND vr.date_route BETWEEN ? AND ?',
-            [
-                $request->vehicle_id,
-                $request->route_id,
-                $request->startdate,
-                $request->lastdate,
-            ]
-        );
-
-        return view('admin.programming.list', compact('listado'));
     }
 
     public function searchifexist($p)
@@ -253,4 +200,5 @@ class ProgrammingsController extends Controller
             return 0;
         }
     }
+    
 }

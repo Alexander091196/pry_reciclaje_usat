@@ -76,4 +76,4 @@ Route::resource('schedules', ScheduleController::class)->names('admin.schedules'
 
 Route::resource('vehicleroutes', VehicleroutesController::class)->names('admin.vehicleroutes');
 
-
+Route::get('admin/vehicleroutes/massupdate/{id}', [VehicleroutesController::class, 'massUpdate'])->name('admin.vehicleroutes.massUpdate');

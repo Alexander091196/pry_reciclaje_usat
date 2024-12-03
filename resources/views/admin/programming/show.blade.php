@@ -7,7 +7,10 @@
     <div class="p-2"></div>
     <div class="card">
         <div class="card-header">
-            <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
+
+            <button class="btn btn-success float-right"id="btnEditarRango" data-id="{{ $programming->id }}"> <i
+                    class="fas fa-plus"></i> Editar por Rango</button>
+
             <h3>Lista de programación</h3>
         </div>
         <div class="card-body table-responsive">
@@ -36,7 +39,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Programación</h5>
+                    <h5 class="modal-title" id="exampleModalLabel"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -47,6 +50,26 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Modal para editar por rango -->
+    <div class="modal fade" id="rangeEditModal" tabindex="-1" role="dialog" aria-labelledby="rangeEditModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rangeEditModalLabel">Editar programación por rango</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- El formulario se cargará aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 @stop
 
 @section('css')
@@ -88,12 +111,15 @@
             });
         });
 
-        $('#btnNuevo').click(function() {
+
+        $(document).on('click', '.btnEditar', function() {
+            var id = $(this).attr("id");
+
             $.ajax({
-                url: "{{ route('admin.programming.create') }}",
+                url: "{{ route('admin.vehicleroutes.edit', 'id') }}".replace('id', id),
                 type: "GET",
                 success: function(response) {
-                    $("#formModal #exampleModalLabel").html("Nueva programación");
+                    $("#formModal #exampleModalLabel").html("Modificar programación");
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
 
@@ -122,10 +148,65 @@
                         })
 
                     })
+                }
+            });
+        })
 
+        $(document).on('click', '#btnEditarRango', function() {
+            var id = $(this).data("id");
+
+            // Verificar la URL generada
+            var url = "{{ route('admin.vehicleroutes.massUpdate', ':id') }}".replace(':id', id);
+            console.log("URL Generada: " + url); // Agregar esto para depurar
+
+            // Abrir el modal para la edición masiva
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function(response) {
+                    console.log(response); // Verifica si la respuesta contiene el formulario
+
+                    // Cargar el formulario dentro del modal de rango
+                    $("#rangeEditModal .modal-body").html(response);
+                    $("#rangeEditModal").modal("show"); // Mostrar el modal
+
+                    // Adjuntar el evento de envío del formulario en el modal
+                    $("#rangeEditModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#rangeEditModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso exitoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+                    })
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cargar el formulario de edición masiva.',
+                        icon: 'error'
+                    });
                 }
             });
         });
+
+
 
         function refreshTable() {
             var table = $('#datatable').DataTable();
@@ -154,57 +235,3 @@
     @endif
 
 @stop
-
-
-
-
-
-
-{{-- 
-//     $(".btnEditar").click(function() {
-//         var id = $(this).attr(
-//             'id'
-//             ); // Obtener el ID del botón (asumiendo que el botón tiene el atributo 'id' con el valor correcto)
-
-//         $.ajax({
-//             url: "{{ route('admin.programming.edit', ':id') }}".replace(':id',
-//                 id), // Reemplazar :id con el valor real
-//             type: "GET",
-//             success: function(response) {
-//                 // Insertar la respuesta (formulario de edición) en el cuerpo del modal
-//                 $('#formModalNormal .modal-body').html(
-//                     response); // Asegúrate de usar el ID correcto de tu modal
-
-//                 $('#formModalNormal').modal('show'); // Mostrar el modal
-//             },
-//             error: function() {
-//                 alert("Ocurrió un error al cargar el formulario de edición.");
-//             }
-//         });
-//     });
-
-
-
-
-//     $(".fmrEliminar").submit(function(e) {
-//         e.preventDefault();
-//         Swal.fire({
-//             title: "Seguro de eliminar?",
-//             text: "Esta accion es irreversible!",
-//             icon: "warning",
-//             showCancelButton: true,
-//             confirmButtonColor: "#3085d6",
-//             cancelButtonColor: "#d33",
-//             confirmButtonText: "Si, eliminar!"
-//         }).then((result) => {
-//             if (result.isConfirmed) {
-//                 this.submit();
-//             }
-//         });
-//     });
-
-//     function refreshTable() {
-//         var table = $('#datatable').DataTable();
-//         table.ajax.reload(null, false); // Recargar datos sin perder la paginación
-//     }
-// --}}
