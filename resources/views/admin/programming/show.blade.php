@@ -8,8 +8,8 @@
     <div class="card">
         <div class="card-header">
 
-            <button class="btn btn-success float-right"id="btnEditarRango" data-id="{{ $programming->id }}"> <i
-                    class="fas fa-plus"></i> Editar por Rango</button>
+            {{-- <button class="btn btn-success float-right"id="btnEditarRango" data-id="{{ $programming->id }}"> <i
+                    class="fas fa-plus"></i> Editar por Rango</button> --}}
 
             <h3>Lista de programación</h3>
         </div>

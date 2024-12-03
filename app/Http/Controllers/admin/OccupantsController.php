@@ -42,7 +42,7 @@ class OccupantsController extends Controller
         $dni = $request->user_id;
 
         $occupantSQL = DB::table('users')
-            ->select('id', 'usertype_id')
+            ->select('id', 'name', 'usertype_id')
             ->where('dni', $dni)
             ->first();
 

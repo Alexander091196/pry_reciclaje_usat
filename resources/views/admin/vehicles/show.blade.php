@@ -7,14 +7,14 @@
     <div class="p-3"></div>
     <div class="card">
         <div class="card-header">
-            <button class="btnEditar btn-success float-right" id={{ $vehicle->id }}><i class="fas fa-plus-circle"></i>
+            <button class="btn btnEditar btn-success float-right" id={{ $vehicle->id }}><i class="fas fa-plus-circle"></i>
                 Agregar ocupante</button>
 
             <div>
-                <strong>Nombre del vehículo:</strong> {{ $vehicle->name }} |
-                <strong>Placa:</strong> {{ $vehicle->plate }}
+                <strong>Nombre del vehículo: </strong> {{ $vehicle->name }} |
+                <strong>Placa: </strong> {{ $vehicle->plate }}
                 <div>
-                    <label for="">Máximo de ocupantes:</label>
+                    <label for="">Máximo de ocupantes: </label>
                     {{ $vehicle->occupant_capacity }} <br>
                 </div>
             </div>

@@ -14,11 +14,11 @@
         <label for="user_id">Persona:</label>
         <input type="text" class="form-control" id="user_id" readonly>
     </div>
-    <div class="form-group col-6">
+    {{-- <div class="form-group col-6">
         <label for="usertype_id">Tipo de persona:</label>
         <input type="text" class="form-control" id="usertype_id" readonly>
     </div>
-    
+     --}}
 </div>
 
 <div class="form-row">

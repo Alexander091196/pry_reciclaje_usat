@@ -213,20 +213,32 @@
                 map: map
             });
 
-            // Marcadores de inicio y fin de la ruta
+            // Marcadores de inicio y fin de la ruta con iconos personalizados
+            var startIcon = {
+                url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', // Icono de inicio (puedes cambiar la URL por otro icono)
+                scaledSize: new google.maps.Size(30, 30) // Tamaño del icono
+            };
+
+            var endIcon = {
+                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', // Icono de fin (puedes cambiar la URL por otro icono)
+                scaledSize: new google.maps.Size(30, 30) // Tamaño del icono
+            };
+
             new google.maps.Marker({
                 position: route.start,
                 map: map,
-                title: 'Inicio de la Ruta'
+                title: 'Inicio de la Ruta',
+                icon: startIcon
             });
 
             new google.maps.Marker({
                 position: route.end,
                 map: map,
-                title: 'Final de la Ruta'
+                title: 'Final de la Ruta',
+                icon: endIcon
             });
 
-            // Dibujar el perímetro de las zonas
+            // Dibujar el perímetro de las zonas con icono personalizado
             zones.forEach(function(zone) {
                 var zonePolygon = new google.maps.Polygon({
                     paths: zone.coords, // Coordenadas de la zona
@@ -238,12 +250,18 @@
                     map: map
                 });
 
-                // Opcional: agregar un marcador en el centro de la zona
+                // Opcional: agregar un marcador en el centro de la zona con icono diferente
+                var zoneIcon = {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/blue-pushpin.png', // Icono para la zona (puedes cambiarlo por otro)
+                    scaledSize: new google.maps.Size(30, 30) // Tamaño del icono
+                };
+
                 var center = getPolygonCenter(zone.coords);
                 new google.maps.Marker({
                     position: center,
                     map: map,
-                    title: zone.name
+                    title: zone.name,
+                    icon: zoneIcon
                 });
             });
         }
