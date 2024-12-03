@@ -143,12 +143,26 @@ class VehiclecolorsController extends Controller
     public function destroy(string $id)
     {
         try {
-            $vehiclecolors = Vehiclecolor::findOrFail($id); // Utiliza findOrFail para manejar el caso de no encontrar el registro
-            $vehiclecolors->delete();
-
+            // Verificar si el color de vehículo está asociado a algún vehículo
+            $asignadoAVehiculo = DB::table('vehicles')
+                ->where('color_id', $id)
+                ->exists();
+    
+            if ($asignadoAVehiculo) {
+                return response()->json([
+                    'message' => 'No se puede eliminar el color porque está asociado a un vehículo'
+                ], 400);
+            }
+    
+            // Eliminar el color si no está asociado
+            DB::table('vehiclecolors')->where('id', $id)->delete();
+    
             return response()->json(['message' => 'Color eliminado correctamente'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Error de eliminación: ' . $th->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error de eliminación',
+                'error' => $th->getMessage() // Para depuración, opcional
+            ], 500);
         }
     }
 }

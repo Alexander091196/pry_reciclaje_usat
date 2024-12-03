@@ -22,17 +22,14 @@ body {
     background-color: #89b68f !important;
     color: #fff !important;
     /*border: 1px solid #1c37a4;*/
-    border-radius: .3rem;
-    font-size: 13px !important
+    border-radius: .4rem;
+    font-size: 14px !important
 }
 
 /* Navbar Links */
 .nav-link {
-    color: #fff !important;
-}
-
-.font-weight-light .fa-search {
-    color: #fff !important;
+    color: #ffffff !important;
+    border-radius: .4rem;
 }
 
 .brand-text {
@@ -41,37 +38,13 @@ body {
 
 /* Active Links */
 .active {
-    background-color: #4964cd !important;
+    background-color: #2f41b4 !important;
 }
 
 .modal-header {
-    background-color: #334FBA !important;
+    background-color: #34bd15 !important;
     color: #fff !important;
 }
-
-/* Sorting 
-.sorting {
-    background-color: #8D6E63 !important; 
-    color: #fff !important;
-}
-
-.sorting_desc, .sorting_asc {
-    background-color: #795548 !important;
-    color: #fff !important;
-}
-
-
-.card-header {
-    background-color: #795548 !important;
-    color: #fff !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 20px !important;
-}*/
-
-/* Treeview 
-.nav-treeview {
-    text-indent: 8px; 
-}*/
 
 .nav-treeview .nav-item .nav-link .fas {
     text-indent: 0;

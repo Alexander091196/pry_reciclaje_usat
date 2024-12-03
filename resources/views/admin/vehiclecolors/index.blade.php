@@ -86,124 +86,164 @@
                     "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
                 }
             });
+        });
 
-            // Registrar un nuevo color
-            $('#btnNuevo').click(function() {
-                $.ajax({
-                    url: "{{ route('admin.vehiclecolors.create') }}",
-                    type: "GET",
-                    success: function(response) {
-                        $("#formModal #exampleModalLabel").html("Registrar nuevo color");
-                        $("#formModal .modal-body").html(response);
-                        $("#formModal").modal("show");
 
-                        $("#formModal form").on("submit", function(e) {
-                            e.preventDefault();
+        // Registrar un nuevo color
+        $('#btnNuevo').click(function() {
+            $.ajax({
+                url: "{{ route('admin.vehiclecolors.create') }}",
+                type: "GET",
+                success: function(response) {
+                    $("#formModal #exampleModalLabel").html("Registrar nuevo color");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
 
-                            var form = $(this);
-                            var formData = new FormData(this);
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
 
-                            $.ajax({
-                                url: form.attr('action'),
-                                type: form.attr('method'),
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function(response) {
-                                    $("#formModal").modal("hide");
-                                    table.ajax.reload(null, false);
-                                    Swal.fire('Proceso exitoso', response
-                                        .message, 'success');
-                                },
-                                error: function(xhr) {
-                                    Swal.fire('Error',
-                                        'No se pudo registrar el color.',
-                                        'error');
-                                }
-                            });
-                        });
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'No se pudo cargar el formulario.', 'error');
-                    }
-                });
-            });
+                        var form = $(this);
+                        var formData = new FormData(this);
 
-            // Editar un color
-            $(document).on('click', '.btnEditar', function() {
-                var id = $(this).attr('id');
-
-                $.ajax({
-                    url: "{{ route('admin.vehiclecolors.edit', ':id') }}".replace(':id', id),
-                    type: "GET",
-                    success: function(response) {
-                        $("#formModal #exampleModalLabel").html("Editar color");
-                        $("#formModal .modal-body").html(response);
-                        $("#formModal").modal("show");
-
-                        $("#formModal form").on("submit", function(e) {
-                            e.preventDefault();
-
-                            var form = $(this);
-                            var formData = new FormData(this);
-
-                            $.ajax({
-                                url: form.attr('action'),
-                                type: form.attr('method'),
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function(response) {
-                                    $("#formModal").modal("hide");
-                                    table.ajax.reload(null, false);
-                                    Swal.fire('Proceso exitoso', response
-                                        .message, 'success');
-                                },
-                                error: function(xhr) {
-                                    Swal.fire('Error',
-                                        'No se pudo actualizar el color.',
-                                        'error');
-                                }
-                            });
-                        });
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'No se pudo cargar el formulario.', 'error');
-                    }
-                });
-            });
-
-            // Eliminar un color
-            $(document).on('submit', '.frmEliminar', function(e) {
-                e.preventDefault();
-                var form = $(this);
-
-                Swal.fire({
-                    title: "¿Estás seguro de eliminar?",
-                    text: "¡Esta acción no se puede deshacer!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Sí, eliminar"
-                }).then((result) => {
-                    if (result.isConfirmed) {
                         $.ajax({
                             url: form.attr('action'),
                             type: form.attr('method'),
-                            data: form.serialize(),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
                             success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
                                 table.ajax.reload(null, false);
-                                Swal.fire('Eliminado', response.message, 'success');
+                                Swal.fire('Proceso exitoso', response
+                                    .message, 'success');
                             },
                             error: function(xhr) {
-                                Swal.fire('Error', 'No se pudo eliminar el color.',
+                                Swal.fire('Error',
+                                    'No se pudo registrar el color.',
+                                    'error');
+                            }
+                        })
+
+                    })
+
+                }
+            });
+        });
+
+        // Editar un color
+        $(document).on('click', '.btnEditar', function() {
+            var id = $(this).attr('id');
+
+            $.ajax({
+                url: "{{ route('admin.vehiclecolors.edit', ':id') }}".replace(':id', id),
+                type: "GET",
+                success: function(response) {
+                    $("#formModal #exampleModalLabel").html("Editar color");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
+
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+
+                                table.ajax.reload(null, false);
+                                Swal.fire('Proceso exitoso', response
+                                    .message, 'success');
+                            },
+                            error: function(xhr) {
+                                Swal.fire('Error',
+                                    'No se pudo actualizar el color.',
                                     'error');
                             }
                         });
-                    }
-                });
+                    });
+                },
+                error: function() {
+                    Swal.fire('Error', 'No se pudo cargar el formulario.', 'error');
+                }
             });
         });
+
+        // Eliminar un color
+        $(document).on('submit', '.frmEliminar', function(e) {
+            e.preventDefault();
+            var form = $(this);
+
+            Swal.fire({
+                title: "¿Estás seguro de eliminar?",
+                text: "¡Esta acción no se puede deshacer!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, eliminar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            table.ajax.reload(null, false);
+                            Swal.fire('Eliminado', response.message, 'success');
+                        },
+                        error: function(xhr) {
+                            Swal.fire('Error', 'No se pudo eliminar el color.',
+                                'error');
+                        }
+                    });
+                }
+            });
+        });
+
+
+        $(document).on('submit', '.frmEliminar', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            Swal.fire({
+                title: "Está seguro de eliminar?",
+                text: "Está acción no se puede revertir!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si, eliminar!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            refreshTable();
+                            Swal.fire('Proceso existoso', response.message, 'success');
+                        },
+                        error: function(xhr) {
+                            var response = xhr.responseJSON;
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+
+        function refreshTable() {
+            var table = $('#datatable').DataTable();
+            table.ajax.reload(null, false); // Recargar datos sin perder la paginación
+        }
     </script>
 @stop

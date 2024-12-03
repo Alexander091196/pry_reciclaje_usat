@@ -19,7 +19,7 @@
             <table class="table table-striped" id="datatable">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th width="10">ID</th>
                         <th>LOGO</th>
                         <th>NOMBRE</th>
                         <th>DESCRIPCIÓN</th>
@@ -220,15 +220,6 @@
             });
         });
 
-        /*function refreshTable() {
-            $.ajax({
-                url: "{{ route('admin.brands.index') }}",
-                type: "GET",
-                success: function(response) {
-                    $('tbody').html($(response).find('tbody').html())
-                }
-            });
-        }*/
 
         function refreshTable() {
             var table = $('#datatable').DataTable();

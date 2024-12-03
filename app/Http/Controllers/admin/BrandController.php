@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -148,16 +149,21 @@ class BrandController extends Controller
     public function destroy(string $id)
     {
         try {
-            $brand = Brand::find($id);
-            $brand->delete();
-
-            return response()->json(['message' => 'Marca eliminada'], 200);
+            // Verificar si existen modelos asociados a la marca
+            $modelosAsociados = DB::table('brandmodels')
+                ->where('brand_id', $id)
+                ->exists();
+    
+            if ($modelosAsociados) {
+                return response()->json(['message' => 'No se puede eliminar la marca porque tiene modelos asociados'], 400);
+            }
+    
+            // Eliminar la marca si no tiene modelos asociados
+            DB::table('brands')->where('id', $id)->delete();
+    
+            return response()->json(['message' => 'Marca eliminada correctamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error de eliminación'], 500);
         }
-
-
-        /*return redirect()->route('admin.brands.index')
-            ->with('success', 'Marca eliminada correctamente');*/
     }
 }

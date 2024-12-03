@@ -113,12 +113,26 @@ class VehicletypesController extends Controller
     public function destroy(string $id)
     {
         try {
-            $vehicletypes = Vehicletype::find($id);
-            $vehicletypes->delete();
+            // Verificar si el tipo de vehículo está asociado a algún vehículo
+            $asignadoAVehiculo = DB::table('vehicles')
+                ->where('type_id', $id)
+                ->exists();
 
-            return response()->json(['message' => 'Marca eliminada'], 200);
+            if ($asignadoAVehiculo) {
+                return response()->json([
+                    'message' => 'No se puede eliminar el tipo de vehículo porque está asociado a un vehículo'
+                ], 400);
+            }
+
+            // Eliminar el tipo de vehículo si no está asociado
+            DB::table('vehicletypes')->where('id', $id)->delete();
+
+            return response()->json(['message' => 'Tipo de vehículo eliminado correctamente'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Error de eliminación'], 500);
+            return response()->json([
+                'message' => 'Error de eliminación',
+                'error' => $th->getMessage() // Para depuración, opcional
+            ], 500);
         }
     }
 }

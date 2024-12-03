@@ -31,22 +31,11 @@ class BrandSeeder extends Seeder
         $m3->logo = null;
         $m3->save();
 
-        $m1 = new Brand();
-        $m1->name = 'Volvo Trucks';
-        $m1->description = 'Fabricante sueco de camiones pesados.';
-        $m1->logo = null;
-        $m1->save();
 
-        $m2 = new Brand();
-        $m2->name = 'Scania';
-        $m2->description = 'Fabricante sueco especializado en camiones y autobuses.';
-        $m2->logo = null;
-        $m2->save();
-
-        $m6 = new Brand();
-        $m6->name = 'Mercedes-Benz Trucks';
-        $m6->description = 'Fabricante alemán líder en vehículos pesados.';
-        $m6->logo = null;
-        $m6->save();
+        $m4 = new Brand();
+        $m4->name = 'Mercedes-Benz Trucks';
+        $m4->description = 'Fabricante alemán líder en vehículos pesados.';
+        $m4->logo = null;
+        $m4->save();
     }
 }
