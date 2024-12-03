@@ -174,13 +174,13 @@
             e.preventDefault();
             var form = $(this);
             Swal.fire({
-                title: "¿Está seguro de eliminar?",
-                text: "¡Esta acción no se puede revertir!",
+                title: "Está seguro de eliminar?",
+                text: "Está acción no se puede revertir!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Sí, eliminar"
+                confirmButtonText: "Si, eliminar!"
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -189,7 +189,7 @@
                         data: form.serialize(),
                         success: function(response) {
                             refreshTable();
-                            Swal.fire('Proceso exitoso', response.message, 'success');
+                            Swal.fire('Proceso existoso', response.message, 'success');
                         },
                         error: function(xhr) {
                             var response = xhr.responseJSON;
@@ -199,6 +199,7 @@
                 }
             });
         });
+
 
         function refreshTable() {
             var table = $('#datatable').DataTable();

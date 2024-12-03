@@ -157,12 +157,21 @@ class SectorController extends Controller
     public function destroy(string $id)
     {
         try {
+            // Verificar si el sector está asignado a alguna zona
+            $sectorAssigned = DB::table('zones')->where('sector_id', $id)->exists();
+    
+            if ($sectorAssigned) {
+                return response()->json(['message' => 'No se puede eliminar el sector porque está asignado a una zona'], 400);
+            }
+    
+            // Si no está asignado a ninguna zona, proceder con la eliminación
             $sector = Sector::findOrFail($id);
             $sector->delete();
-
+    
             return response()->json(['message' => 'Sector eliminado correctamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error al eliminar: ' . $th->getMessage()], 500);
         }
     }
+    
 }

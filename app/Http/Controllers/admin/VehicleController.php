@@ -94,7 +94,7 @@ class VehicleController extends Controller
             $request->validate([
                 "name" => "unique:vehicles",
                 "code" => "unique:vehicles",
-                "plate" => "required|string|max:12|unique:vehicles"
+                "plate" => "required|string|max:7|unique:vehicles"
                 
             ]);
 
@@ -181,7 +181,7 @@ class VehicleController extends Controller
             $request->validate([
                 "name" => "unique:vehicles,name," . $id,
                 "code" => "unique:vehicles,code," . $id,
-                "plate" => "required|string|max:12|size:12|unique:vehicles,plate," . $id,
+                "plate" => "required|string|max:7|size:7|unique:vehicles,plate," . $id,
                 "color_id" => "required|exists:vehiclecolors,id" // Validar que el color existe
             ]);
     
@@ -224,4 +224,4 @@ class VehicleController extends Controller
             return response()->json(['message' => 'Error la eliminación: ' . $th->getMessage()], 500);
         }
     }
-}
+} 

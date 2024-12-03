@@ -119,34 +119,20 @@ class UsertypesController extends Controller
      */
     public function destroy(string $id)
     {
-        // try {
-        //     $usertype = Usertype::findOrFail($id); // Use findOrFail to throw an exception if not found
-
-        //     // Check if the user type is protected
-        //     if ($usertype->isProtected()) {
-        //         return response()->json([
-        //             'message' => 'Este tipo de usuario es parte del sistema y no puede ser eliminado.'
-        //         ], 403);
-        //     }
-
-        //     // Proceed to delete if not protected
-        //     $usertype->delete();
-        //     return response()->json(['message' => 'Tipo de personal eliminado con éxito'], 200);
-
-        // } catch (\Throwable $th) {
-        //     // Handle the case where the user type is not found or any other exception
-        //     return response()->json(['message' => 'Error de eliminación', 'error' => $th->getMessage()], 500);
-        // }
-
-
-
         try {
-            $usertypes = Usertype::find($id);
-            $usertypes->delete();
+            // Verificar si el tipo de usuario está asignado a algún usuario
+            $usertypeAssigned = DB::table('users')->where('usertype_id', $id)->exists();
 
-            return response()->json(['message' => 'Marca eliminada'], 200);
+            if ($usertypeAssigned) {
+                return response()->json(['message' => 'No se puede eliminar el tipo de usuario porque está asignado a un usuario'], 400);
+            }
+
+            // Eliminar el tipo de usuario si no está asignado a ningún usuario
+            DB::table('usertypes')->where('id', $id)->delete();
+
+            return response()->json(['message' => 'Tipo de usuario eliminado correctamente'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Error de eliminación'], 500);
+            return response()->json(['message' => 'Error de eliminación: ' . $th->getMessage()], 500);
         }
     }
 }

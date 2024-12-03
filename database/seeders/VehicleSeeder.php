@@ -19,7 +19,7 @@ class VehicleSeeder extends Seeder
             [
                 'name' => 'Camión Ford',
                 'code' => 'FORD123',
-                'plate' => 'ABC-1234',
+                'plate' => 'ABC-123',
                 'year' => '2020',
                 'occupant_capacity' => 3,
                 'load_capacity' => 12000.50,
@@ -35,9 +35,9 @@ class VehicleSeeder extends Seeder
             [
                 'name' => 'Van Toyota',
                 'code' => 'TOYOTA567',
-                'plate' => 'XYZ-7890',
+                'plate' => 'XYZ-789',
                 'year' => '2018',
-                'occupant_capacity' => 12,
+                'occupant_capacity' => 2,
                 'load_capacity' => 2000.00,
                 'description' => 'Van para transporte de personal',
                 'status' => 1, // 1: Activo

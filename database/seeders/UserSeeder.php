@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
         $u1->password = Hash::make('123456');
         $u1->dni = '12345678';
         $u1->birthdate = '1990-01-01';
-        $u1->license = 'ADM001';
+        $u1->license = 'A-I';
         $u1->address = 'Dirección Administrador';
         $u1->usertype_id = 1;
         $u1->email_verified_at = now();
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
         $u2->password = Hash::make('123456');
         $u2->dni = '87654321';
         $u2->birthdate = '1985-05-15';
-        $u2->license = 'CON001';
+        $u2->license = 'A-IIIb';
         $u2->address = 'Dirección Conductor';
         $u2->usertype_id = 2;
         $u2->email_verified_at = now();
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
         $u3->password = Hash::make('123456');
         $u3->dni = '45678912';
         $u3->birthdate = '1988-08-20';
-        $u3->license = 'REC001';
+        $u3->license = 'A-IIa';
         $u3->address = 'Dirección Recolector';
         $u3->usertype_id = 3;
         $u3->email_verified_at = now();
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
         $u4->password = Hash::make('123456');
         $u4->dni = '32165498';
         $u4->birthdate = '1995-12-10';
-        $u4->license = 'CIU001';
+        $u4->license = 'A-I';
         $u4->address = 'Dirección Ciudadano';
         $u4->usertype_id = 4;
         $u4->email_verified_at = now();
