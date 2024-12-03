@@ -83,7 +83,7 @@ class ActionsController extends Controller
             // Validar que el día de la fecha coincida con el horario
             $selectedDate = \Carbon\Carbon::parse($request->date);
             $allowedDay = array_search(strtoupper($horario->day), [
-                "DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO",
+                "DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO",
             ]);
     
             if ($selectedDate->dayOfWeek !== $allowedDay) {
@@ -101,12 +101,15 @@ class ActionsController extends Controller
                     'message' => 'La fecha seleccionada no corresponde al mes permitido (' . $allowedMonth . ').',
                 ], 422);
             }
-    
-            // Procesar imagen
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('images', 'public');
-            }
+
+             // Procesar la imagen (si existe)
+        $imagePath = null; // Valor por defecto si no se sube imagen
+        if ($request->hasFile('image')) {
+            // Guardar la nueva imagen
+            $imagePath = $request->file('image')->store('public/actions');
+            $imagePath = Storage::url($imagePath);
+        }
+
     
             // Crear acción
             Action::create([
@@ -172,7 +175,7 @@ class ActionsController extends Controller
     
             // Validar que el día de la semana de la fecha coincida con el día del horario
             $allowedDay = array_search(strtoupper($horarie->day), [
-                "DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO",
+                "DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO",
             ]);
     
             if ($requestDate->dayOfWeek !== $allowedDay) {
