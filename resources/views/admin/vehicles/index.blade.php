@@ -7,7 +7,7 @@
     <div class="card">
         <div class="card-header">
             <!--<a href="{{ route('admin.vehicles.create') }}" class="btn btn-success float-right"><i class="fas fa-plus"></i>
-                                                                                                                                                                                                                                                    Nuevo</a>-->
+                                                                                                                                                                                                                                                                Nuevo</a>-->
             <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
             <h3>Vehículos</h3>
         </div>
@@ -88,6 +88,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para Imágenes -->
+    <div class="modal fade" id="imagesModal" tabindex="-1" role="dialog" aria-labelledby="imagesModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imagesModalLabel">Imágenes del Vehículo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- El contenido de las imágenes se cargará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 @stop
 
 @section('css')
@@ -253,6 +272,7 @@
         });
 
 
+
         $(document).on('click', '.btnImagenes', function() {
             var id = $(this).attr("id");
 
@@ -260,49 +280,18 @@
                 url: "{{ route('admin.vehicles.show', 'id') }}".replace('id', id),
                 type: "GET",
                 success: function(response) {
-                    $("#formModal #exampleModalLabel").html("Imágenes del Vehículo");
-                    $("#formModal .modal-body").html(response);
-                    $("#formModal").modal("show");
-                    $("#formModal form").on("submit", function(e) {
-                        e.preventDefault();
-
-                        var form = $(this);
-
-                        Swal.fire({
-                            title: "Está seguro de eliminar?",
-                            text: "Está acción no se puede revertir!",
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#3085d6",
-                            cancelButtonColor: "#d33",
-                            confirmButtonText: "Si, eliminar!"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: form.attr('action'),
-                                    type: form.attr('method'),
-                                    data: form.serialize(),
-                                    success: function(response) {
-                                        $("#formModal").modal("hide");
-
-                                        refreshTable();
-                                        Swal.fire('Proceso existoso',
-                                            response.message, 'success');
-                                    },
-                                    error: function(xhr) {
-                                        var response = xhr.responseJSON;
-                                        Swal.fire('Error', response.message,
-                                            'error');
-                                    }
-                                });
-                            }
-                        });
-
-                    })
+                    $("#imagesModal #imagesModalLabel").html("Imágenes del Vehículo");
+                    $("#imagesModal .modal-body").html(response);
+                    $("#imagesModal").modal("show");
+                },
+                error: function(xhr) {
+                    var response = xhr.responseJSON;
+                    Swal.fire('Error', response.message, 'error');
                 }
             });
-        })
+        });
 
+       
 
         $(document).on('click', '.btnimageprofile', function(e) {
 

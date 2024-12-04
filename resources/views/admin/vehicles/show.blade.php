@@ -90,7 +90,7 @@
                 </div>
                 <div class="modal-footer">
                     <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Save changes</button>-->
+                          <button type="button" class="btn btn-primary">Save changes</button>-->
                 </div>
             </div>
         </div>
@@ -106,11 +106,33 @@
 
 @section('js')
     <script>
-        $('#datatable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
-            }
+        $(document).ready(function() {
+            var table = $('#datatable').DataTable({
+                "ajax": "{{ route('admin.vehicles.index') }}", // La ruta que llama al controlador vía AJAX
+                "columns": [{
+                        "data": "id",
+                    },
+                    {
+                        "data": "usernames",
+                    },
+                    {
+                        "data": "usertype",
+                    },
+                    {
+                        "data": "date",
+                    },
+                    {
+                        "data": "actions",
+                        "orderable": false,
+                        "searchable": false,
+                    }
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                }
+            });
         });
+
 
         $(".btnEditar").click(function() {
             var id = $(this).attr('id');
@@ -123,7 +145,6 @@
                     $('#formModal').modal('show');
                 }
             });
-
         });
 
         $(".fmrEliminar").submit(function(e) {

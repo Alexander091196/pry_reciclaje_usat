@@ -20,49 +20,48 @@ class VehicleController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $vehicles = DB::select('CALL sp_vehicles');
+    {
+        $vehicles = DB::select('CALL sp_vehicles');
 
-    // Asignar un valor predeterminado a logo si es null
-    foreach ($vehicles as $vehicle) {
-        $vehicle->logo = $vehicle->logo ?? 'storage/brand_logo/no_image.png';
-    }
+        // Asignar un valor predeterminado a logo si es null
+        foreach ($vehicles as $vehicle) {
+            $vehicle->logo = $vehicle->logo ?? 'storage/brand_logo/no_image.png';
+        }
 
-    if ($request->ajax()) {
-        return DataTables::of($vehicles)
-            ->addColumn('logo', function ($vehicle) {
-                return '<img src="' . asset($vehicle->logo) . '" width="100px" height="70px" class="card">';
-            })
-            ->addColumn('status', function ($vehicle) {
-                return $vehicle->status == 1 ? '<div style="color: green"><i class="fas fa-check"></i> Activo</div>' : '<div style="color: red"><i class="fas fa-times"></i> Inactivo</div>';
-            })
-            ->addColumn('actions', function ($vehicle) {
-                return '
+        if ($request->ajax()) {
+            return DataTables::of($vehicles)
+                ->addColumn('logo', function ($vehicle) {
+                    return '<img src="' . asset($vehicle->logo) . '" width="100px" height="70px" class="card">';
+                })
+                ->addColumn('status', function ($vehicle) {
+                    return $vehicle->status == 1 ? '<div style="color: green"><i class="fas fa-check"></i> Activo</div>' : '<div style="color: red"><i class="fas fa-times"></i> Inactivo</div>';
+                })
+                ->addColumn('actions', function ($vehicle) {
+                    return '
                 <div class="dropdown">
                     <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-bars"></i>                        
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <button class="dropdown-item btnEditar" id="' . $vehicle->id . '"><i class="fas fa-edit"></i>  Editar</button>
-                        <button class="dropdown-item btnImagenes" id="' . $vehicle->id . '"><i class="fas fa-image"></i>  Imágenes</button>
                         <form action="' . route('admin.vehicles.destroy', $vehicle->id) . '" method="POST" class="frmEliminar d-inline">
                             ' . csrf_field() . method_field('DELETE') . '
                             <button type="submit" class="dropdown-item"><i class="fas fa-trash"></i> Eliminar</button>
                         </form>
                     </div>
                 </div>';
-            })
-            ->addColumn('occupants', function ($vehicle) {
-                return '<a href="' . route('admin.vehicles.occupants', $vehicle->id) . '" class="btn btn-success btn-sm">
+                })
+                ->addColumn('occupants', function ($vehicle) {
+                    return '<a href="' . route('admin.vehicles.occupants', $vehicle->id) . '" class="btn btn-success btn-sm">
                             <i class="fas fa-people-arrows"></i>&nbsp;&nbsp;(0)
                         </a>';
-            })            
-            ->rawColumns(['logo', 'status', 'occupants', 'actions'])  // Declarar columnas que contienen HTML
-            ->make(true);
-    }
+                })
+                ->rawColumns(['logo', 'status', 'occupants', 'actions'])  // Declarar columnas que contienen HTML
+                ->make(true);
+        }
 
-    return view('admin.vehicles.index', compact('vehicles'));
-}
+        return view('admin.vehicles.index', compact('vehicles'));
+    }
 
 
     /**
@@ -95,7 +94,7 @@ class VehicleController extends Controller
                 "name" => "unique:vehicles",
                 "code" => "unique:vehicles",
                 "plate" => "required|string|max:7|unique:vehicles"
-                
+
             ]);
 
             if (!isset($request->status)) {
@@ -127,10 +126,10 @@ class VehicleController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-{
-    $vehicle = Vehicle::findOrFail($id);
+    {
+        $vehicle = Vehicle::findOrFail($id);
 
-    $occupants = DB::select("
+        $occupants = DB::select("
         SELECT 
             o.id, 
             u.name AS usernames, 
@@ -144,10 +143,10 @@ class VehicleController extends Controller
         AND v.id = ?
     ", [$id]);
 
-    $images = Vehicleimage::where("vehicle_id", $id)->get();
+        $images = Vehicleimage::where("vehicle_id", $id)->get();
 
-    return view("admin.vehicles.show", compact("vehicle", "occupants", "images"));
-}
+        return view("admin.vehicles.show", compact("vehicle", "occupants", "images"));
+    }
 
 
 
@@ -156,20 +155,19 @@ class VehicleController extends Controller
      */
     public function edit(string $id)
     {
-       
-    $vehicle = Vehicle::findOrFail($id); // Encuentra el vehículo
-    $brands = Brand::pluck('name', 'id'); // Marcas
-    $models = Brandmodel::where('brand_id', $vehicle->brand_id)->pluck('name', 'id'); // Modelos según la marca
-    $types = Vehicletype::pluck('name', 'id'); // Tipos de vehículo
-    $colors = Vehiclecolor::all()->mapWithKeys(function ($color) {
-        return [$color->id => [
-            'name' => $color->name,
-            'rgb' => "rgb({$color->red},{$color->green},{$color->blue})"
-        ]];
-    });
 
-    return view('admin.vehicles.edit', compact('vehicle', 'brands', 'models', 'types', 'colors'));
-    
+        $vehicle = Vehicle::findOrFail($id); // Encuentra el vehículo
+        $brands = Brand::pluck('name', 'id'); // Marcas
+        $models = Brandmodel::where('brand_id', $vehicle->brand_id)->pluck('name', 'id'); // Modelos según la marca
+        $types = Vehicletype::pluck('name', 'id'); // Tipos de vehículo
+        $colors = Vehiclecolor::all()->mapWithKeys(function ($color) {
+            return [$color->id => [
+                'name' => $color->name,
+                'rgb' => "rgb({$color->red},{$color->green},{$color->blue})"
+            ]];
+        });
+
+        return view('admin.vehicles.edit', compact('vehicle', 'brands', 'models', 'types', 'colors'));
     }
 
     /**
@@ -184,17 +182,17 @@ class VehicleController extends Controller
                 "plate" => "required|string|max:7|size:7|unique:vehicles,plate," . $id,
                 "color_id" => "required|exists:vehiclecolors,id" // Validar que el color existe
             ]);
-    
+
             $status = $request->has('status') ? 1 : 0;
-    
+
             $vehicle = Vehicle::findOrFail($id);
-    
+
             $vehicle->update($request->except("image") + ["status" => $status]);
-    
+
             if ($request->hasFile('image')) {
                 $image = $request->file("image")->store("public/vehicles_images/" . $vehicle->id);
                 $urlImage = Storage::url($image);
-    
+
                 // Actualizar imagen de perfil
                 DB::table("vehicleimages")->where("vehicle_id", $id)->update(["profile" => 0]);
                 Vehicleimage::create([
@@ -203,7 +201,7 @@ class VehicleController extends Controller
                     "vehicle_id" => $vehicle->id
                 ]);
             }
-    
+
             return response()->json(['message' => 'Vehículo actualizado correctamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error en la actualización: ' . $th->getMessage()], 500);
@@ -215,13 +213,18 @@ class VehicleController extends Controller
      */
     public function destroy(string $id)
     {
-
         try {
-            $vehicle = Vehicle::find($id);
-            $vehicle->delete();
+            DB::transaction(function () use ($id) {
+                // Eliminar imágenes asociadas al vehículo
+                DB::table('vehicleimages')->where('vehicle_id', $id)->delete();
+
+                // Eliminar el vehículo
+                DB::table('vehicles')->where('id', $id)->delete();
+            });
+
             return response()->json(['message' => 'Vehículo eliminado correctamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error la eliminación: ' . $th->getMessage()], 500);
         }
     }
-} 
+}

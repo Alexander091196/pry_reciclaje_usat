@@ -12,7 +12,14 @@
                     class="fas fa-plus"></i> Editar por Rango</button> --}}
 
             <h3>Lista de programación</h3>
+
+            <a href="{{ route('admin.programming.index') }}" class="btn btn-danger float-right">
+                <i class="fas fa-chevron-left"></i> Retornar
+            </a>
+
         </div>
+
+
         <div class="card-body table-responsive">
             <table class="table table-striped" id="datatable">
                 <thead>

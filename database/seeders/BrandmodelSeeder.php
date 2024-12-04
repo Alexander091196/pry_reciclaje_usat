@@ -54,14 +54,6 @@ class BrandmodelSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            [
-                'name' => 'R Series',
-                'code' => 'R001',
-                'description' => 'Camión premium de Scania.',
-                'brand_id' => 5, // ID de Scania
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
         ];
 
         foreach ($models as $model) {
