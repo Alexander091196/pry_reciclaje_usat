@@ -228,6 +228,3 @@ class VehicleController extends Controller
         }
     }
 }
-
-
-asd
